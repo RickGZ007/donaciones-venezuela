@@ -871,24 +871,21 @@
         return;
       }
       try {
-        // Sin cabecera Content-Type: así es una petición "simple" y evita el
-        // preflight CORS (OPTIONS) que Apps Script no responde. doPost lee el
-        // cuerpo crudo con JSON.parse(e.postData.contents), así que funciona igual.
-        const resp = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(datos) });
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        const res = await resp.json();
-        if (res.exito) {
-          msg.className = 'form-mensaje exito';
-          msg.textContent = '✅ ' + (res.mensaje || 'Agregado.');
-          $('#form-agregar').reset();
-          setTimeout(cargarDatos, 1500);     // refresca Donaciones con el nuevo dato
-        } else {
-          msg.className = 'form-mensaje error';
-          msg.textContent = '❌ Error: ' + (res.error || 'no se pudo guardar');
-        }
+        // Apps Script NO expone CORS en el POST: su 302 inicial (script.google.com)
+        // no lleva Access-Control-Allow-Origin, así que un fetch normal lo bloquea.
+        // mode:'no-cors' → la petición llega y doPost escribe, pero la respuesta es
+        // OPACA (no se puede leer {exito}). El body como string va text/plain
+        // (petición simple) → sin preflight. Confirmamos recargando Donaciones,
+        // cuyo GET sí trae CORS y mostrará la fila nueva.
+        await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
+        msg.className = 'form-mensaje exito';
+        msg.textContent = '✅ Enviado. Mira la pestaña 🎁 Donaciones (recárgala si hace falta).';
+        $('#form-agregar').reset();
+        setTimeout(cargarDatos, 1500);       // refresca Donaciones con el dato nuevo
       } catch (err) {
+        // Con no-cors el fetch solo falla por error de red real (no por status HTTP).
         msg.className = 'form-mensaje error';
-        msg.textContent = '❌ Error de conexión: ' + err.message;
+        msg.textContent = '❌ No se pudo enviar (sin conexión): ' + err.message;
       }
     }
 
