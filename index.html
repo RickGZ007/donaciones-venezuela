@@ -215,28 +215,6 @@
     .nav-link:hover { color: var(--ink); background: #EFF4FA; }
     .nav-link[aria-current="page"] { color: var(--ink); background: #EAF0FF; }
     .nav-link:active { transform: translateY(1px); }
-    .status-pill {
-      min-height: 36px;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 0 10px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--muted);
-      background: #fff;
-      font-size: 0.78rem;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--success);
-    }
-    .status-dot.loading { background: var(--primary); }
-    .status-dot.error { background: var(--error); }
     .header-actions {
       display: inline-flex;
       align-items: center;
@@ -970,8 +948,6 @@
       .card, .form-panel, .registry-side { padding: 18px; }
     }
     @media (max-width: 420px) {
-      .status-pill { font-size: 0; gap: 0; padding: 0 12px; }
-      .status-dot { margin: 0; }
       .language-control { min-width: 112px; }
       .language-control select { font-size: 0.78rem; padding-right: 26px; }
       .section-actions .btn, .form-actions .btn, .card-actions .btn, .inline-actions .btn { flex: 1 1 100%; }
@@ -997,7 +973,6 @@
         <button class="nav-link" type="button" data-view-link="seguimiento">Seguimiento</button>
       </nav>
       <div class="header-actions">
-        <div class="status-pill" aria-live="polite"><span id="status-dot" class="status-dot loading" aria-hidden="true"></span><span id="status-text">Conectando</span></div>
         <div class="language-control">
           <label class="visually-hidden" for="language-select">Idioma</label>
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -1764,12 +1739,6 @@
 
     function setStatus(source) {
       fuenteDatosActual = source || 'loading';
-      const dot = $('#status-dot');
-      const text = $('#status-text');
-      dot.className = 'status-dot';
-      if (source === 'live') text.textContent = t('status.live');
-      else if (source === 'loading') { dot.classList.add('loading'); text.textContent = t('status.loading'); }
-      else { dot.classList.add('error'); text.textContent = t('status.error'); }
       const banner = $('#banner');
       banner.classList.toggle('visible', source !== 'live' && source !== 'loading');
       banner.textContent = source === 'live' || source === 'loading' ? '' : t('status.errorBanner');
