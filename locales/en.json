@@ -30,7 +30,8 @@
     "call": "Call{target}",
     "whatsapp": "Open WhatsApp{target}",
     "close": "Close",
-    "progress": "{item} progress"
+    "progress": "{item} progress",
+    "donationFilters": "Humanitarian donation filters"
   },
   "nav": {
     "home": "Home",
@@ -38,15 +39,16 @@
     "volunteers": "Volunteers",
     "rescuers": "Rescuers",
     "searchFamily": "Find family",
-    "traceability": "Tracking",
+    "traceability": "Donations",
     "centersLong": "Aid centers",
     "volunteersLong": "Volunteer registration",
     "rescuersLong": "Rescuer registration",
-    "traceabilityLong": "Donation tracking",
+    "traceabilityLong": "Donation center",
     "volunteersShort": "Vol.",
     "rescueShort": "Rescue",
     "searchShort": "Search",
-    "tokenShort": "Token"
+    "tokenShort": "Token",
+    "donationsShort": "Donate"
   },
   "status": {
     "live": "Google Sheets data",
@@ -291,7 +293,8 @@
     "closed": "Closed:",
     "movement": "Movement",
     "openEvidence": "Open evidence",
-    "evidenceFile": "Evidence"
+    "evidenceFile": "Evidence",
+    "panelTitle": "Public token traceability"
   },
   "modal": {
     "historyTitle": "Movement history",
@@ -435,7 +438,12 @@
       "Jabón": "Soap",
       "Calzado": "Footwear",
       "Oxímetros": "Oximeters",
-      "Guantes": "Gloves"
+      "Guantes": "Gloves",
+      "Material médico": "Medical material",
+      "Transporte": "Transport",
+      "Kits de higiene": "Hygiene kits",
+      "Equipos": "Equipment",
+      "Herramientas": "Tools"
     },
     "units": {
       "paquetes": "packs",
@@ -484,6 +492,225 @@
       "Guardia nocturna": "Night shift",
       "Turnos de tarde": "Afternoon shifts",
       "Fines de semana": "Weekends"
+    },
+    "donationPriorities": {
+      "Crítico": "Critical",
+      "Alto": "High",
+      "Medio": "Medium"
+    },
+    "aidStatus": {
+      "Pendiente": "Pending",
+      "En proceso": "In progress",
+      "Entregado": "Delivered"
+    }
+  },
+  "donations": {
+    "title": "Humanitarian Donation Center",
+    "copy": "National coordination for collection centers, hospitals, volunteers, rescuers, and public traceability.",
+    "heroUrgentAction": "View urgent needs",
+    "heroTrackingAction": "Check token",
+    "dashboardTitle": "Humanitarian dashboard",
+    "dashboardCopy": "Consolidated indicators from platform records and Google Sheets-compatible data.",
+    "filtersTitle": "Advanced filters",
+    "filters": {
+      "type": "Help type",
+      "urgency": "Urgency level",
+      "cityPlaceholder": "Filter by city",
+      "recent": "Recent date",
+      "verified": "Verified",
+      "collectionCenters": "Collection centers",
+      "hospitals": "Hospitals",
+      "volunteers": "Volunteers",
+      "rescuers": "Rescuers",
+      "count": "Showing {shown} of {total} requests"
+    },
+    "urgentTitle": "Urgent requests",
+    "urgentCopy": "Critical hospitals, centers with extreme shortages, and medical emergencies.",
+    "mapTitle": "Needs map",
+    "mapCopy": "Regional summary ready for future geographic integration when verified coordinates exist.",
+    "mapRequests": "Requests",
+    "needsTitle": "Priority needs",
+    "needsCopy": "Dynamic ranking by request volume and operational urgency.",
+    "impactTitle": "Humanitarian impact",
+    "impactCopy": "Operational counters calculated from available records.",
+    "sections": {
+      "collectionCenters": "Collection Centers",
+      "hospitals": "Hospitals",
+      "volunteers": "Volunteers",
+      "rescuers": "Rescuers"
+    },
+    "historyTitle": "Aid history",
+    "historyCopy": "Prepared for Pending, In progress, and Delivered statuses from Google Sheets.",
+    "inKindTitle": "In-kind donations",
+    "servicesTitle": "Service donations",
+    "alliesTitle": "Humanitarian allies",
+    "alliesCopy": "Structure prepared for NGOs, hospitals, universities, companies, and community centers.",
+    "transparencyTitle": "Transparency",
+    "transparencyCopy": "The requests shown come from documented records inside the platform. The information can be audited and validated through records stored in Google Sheets.",
+    "emptyFiltered": "No requests match those filters.",
+    "emptySection": "No records for this section with the current filters.",
+    "kpis": {
+      "collectionCenters": "Active collection centers",
+      "collectionCentersMeta": "Points ready to receive donations",
+      "hospitals": "Hospitals requesting help",
+      "hospitalsMeta": "Medical cases and critical supplies",
+      "volunteers": "Registered volunteers",
+      "volunteersMeta": "People available to help",
+      "rescuers": "Active rescuers",
+      "rescuersMeta": "Teams with operational capacity",
+      "urgentRequests": "Urgent requests",
+      "urgentRequestsMeta": "Critical or high priority",
+      "registeredDonations": "Registered donations",
+      "registeredDonationsMeta": "Documented requests and support",
+      "beneficiaries": "People benefited",
+      "beneficiariesMeta": "Accumulated operational estimate"
+    },
+    "impact": {
+      "beneficiaries": "People benefited",
+      "hospitals": "Hospitals supported",
+      "centers": "Centers supported",
+      "deliveries": "Deliveries completed",
+      "volunteers": "Active volunteers"
+    },
+    "actions": {
+      "donateCenter": "Donate to this center",
+      "supportHospital": "Support hospital",
+      "supportVolunteer": "Support volunteer",
+      "supportRescuer": "Support rescuer"
+    },
+    "card": {
+      "responsible": "Responsible"
+    },
+    "badges": {
+      "verified": "Verified",
+      "pendingValidation": "Pending validation",
+      "activeRequest": "Active request",
+      "recent": "Recently updated",
+      "lastUpdate": "Updated {date}",
+      "example": "Example",
+      "documented": "Documented"
+    },
+    "urgentTags": {
+      "critical": "CRITICAL",
+      "urgent": "URGENT",
+      "high": "HIGH PRIORITY"
+    },
+    "transparency": {
+      "lastUpdate": "Update date",
+      "source": "Data source",
+      "validation": "Validation status",
+      "platformSource": "Documented platform and Google Sheets records",
+      "exampleSource": "Simulated example data",
+      "validated": "Operational validation available",
+      "exampleValidation": "Visible example until compatible columns are received"
+    },
+    "defaults": {
+      "organization": "Humanitarian organization",
+      "supplies": "Priority supplies",
+      "coordination": "Local coordination",
+      "hospitalSpecialty": "Emergency care"
+    },
+    "mock": {
+      "centerName": "Vargas Community Center",
+      "hospitalName": "La Guaira Emergency Hospital",
+      "volunteerName": "Coastal volunteer team",
+      "rescueName": "Metropolitan rescue brigade",
+      "cityOne": "Catia La Mar",
+      "cityTwo": "Maiquetía",
+      "cityThree": "Caraballeda",
+      "cityFour": "Caracas",
+      "stateOne": "La Guaira",
+      "stateTwo": "La Guaira",
+      "stateThree": "La Guaira",
+      "stateFour": "Capital District",
+      "coordinator": "Community coordination",
+      "medicalLead": "Medical direction",
+      "rescueLead": "Operations coordinator",
+      "emergency": "Emergency care",
+      "logistics": "Logistics",
+      "daytime": "Day shift",
+      "rescueSpecialty": "Urban rescue"
+    },
+    "messages": {
+      "contactPending": "Contact is pending publication for this request."
+    },
+    "inKind": {
+      "water": {
+        "title": "Water",
+        "copy": "Drinking water and hydration supplies."
+      },
+      "food": {
+        "title": "Food",
+        "copy": "Non-perishable food and family rations."
+      },
+      "medicine": {
+        "title": "Medicine",
+        "copy": "Essential medicines and basic treatments."
+      },
+      "medicalEquipment": {
+        "title": "Medical equipment",
+        "copy": "Clinical supplies, equipment, and medical material."
+      },
+      "hygiene": {
+        "title": "Hygiene",
+        "copy": "Personal hygiene and cleaning kits."
+      },
+      "transport": {
+        "title": "Transport",
+        "copy": "Supply and vulnerable-person transport."
+      },
+      "fuel": {
+        "title": "Fuel",
+        "copy": "Support for routes, ambulances, and logistics."
+      }
+    },
+    "services": {
+      "transport": {
+        "title": "Transport",
+        "copy": "Vehicles, routes, and available drivers."
+      },
+      "medicalCare": {
+        "title": "Medical care",
+        "copy": "Health staff and first aid."
+      },
+      "logistics": {
+        "title": "Logistics",
+        "copy": "Sorting, inventory, and distribution."
+      },
+      "translation": {
+        "title": "Translation",
+        "copy": "Multilingual support for coordination."
+      },
+      "communication": {
+        "title": "Communication",
+        "copy": "Outreach, verification, and community links."
+      },
+      "psychologicalSupport": {
+        "title": "Psychological support",
+        "copy": "Emotional support and family guidance."
+      }
+    },
+    "allies": {
+      "ngos": {
+        "title": "NGOs",
+        "copy": "Organizations ready for future validation."
+      },
+      "hospitals": {
+        "title": "Hospitals",
+        "copy": "Health network and emergency units."
+      },
+      "universities": {
+        "title": "Universities",
+        "copy": "Technical volunteering and collection spaces."
+      },
+      "companies": {
+        "title": "Companies",
+        "copy": "Logistics capacity, supplies, and transport."
+      },
+      "communityCenters": {
+        "title": "Community centers",
+        "copy": "Local distribution and registration points."
+      }
     }
   }
 }

@@ -91,6 +91,7 @@ function doGet(e) {
     if (accion === "buscar_familiar" || accion === "familiares") return buscarFamiliares(params);
 
     if (accion === "seguimiento_factura" || accion === "seguimiento_token" || accion === "trazabilidad") return obtenerSeguimientoFactura(params);
+    if (accion === "donaciones_humanitarias" || accion === "centro_donaciones") return listarDonacionesHumanitarias(params);
     if (accion === "facturas") return listarFacturas(params);
     if (accion === "lugares") return listarLugares(params);
     if (accion === "centros") return listarCentros();
@@ -107,6 +108,7 @@ function doGet(e) {
     const voluntarios = filtrarPersonas(construirVoluntarios(), params);
     const rescatistas = filtrarPersonas(construirRescatistas(), params);
     const motorizados = construirMotorizadosSeguro();
+    const donacionesHumanitarias = construirDonacionesHumanitariasSeguro();
     const estadisticas = construirEstadisticas({ lugares, voluntarios, rescatistas, motorizados });
 
     return jsonResponse({
@@ -115,6 +117,8 @@ function doGet(e) {
       voluntarios,
       rescatistas,
       motorizados,
+      donacionesHumanitarias,
+      donaciones_humanitarias: donacionesHumanitarias,
       estadisticas,
       stats: estadisticas
     });
@@ -1608,6 +1612,78 @@ function registrarEvidenciaFactura(payload) {
 function listarFacturas() {
   const facturas = leerObjetos(FACTURAS_SHEET, FACTURAS_HEADERS).map(facturaPublica);
   return jsonResponse({ success: true, facturas, total: facturas.length });
+}
+
+// -- DONACIONES HUMANITARIAS OPCIONALES -----------------------------------
+const DONACIONES_HUMANITARIAS_COLUMNAS = [
+  "donation_type", "organization", "city", "state", "priority",
+  "requested_items", "beneficiaries", "verified", "last_update", "status"
+];
+
+function listarDonacionesHumanitarias() {
+  const donacionesHumanitarias = construirDonacionesHumanitariasSeguro();
+  return jsonResponse({
+    success: true,
+    donacionesHumanitarias,
+    donaciones_humanitarias: donacionesHumanitarias,
+    total: donacionesHumanitarias.length
+  });
+}
+
+function construirDonacionesHumanitariasSeguro() {
+  try {
+    return construirDonacionesHumanitarias();
+  } catch (err) {
+    return [];
+  }
+}
+
+function hojaTieneColumnasHumanitarias(headers) {
+  const normalized = headers.map(normalizar);
+  return DONACIONES_HUMANITARIAS_COLUMNAS.some(function (column) {
+    return normalized.indexOf(normalizar(column)) !== -1;
+  });
+}
+
+function construirDonacionesHumanitarias() {
+  const hoja = obtenerHojaOpcional(DONACIONES_SHEET);
+  if (!hoja) return [];
+
+  const values = hoja.getDataRange().getValues();
+  if (values.length <= 1) return [];
+
+  const headers = values[0].map(texto);
+  if (!hojaTieneColumnasHumanitarias(headers)) return [];
+
+  const donaciones = [];
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (!row.some(function (value) { return texto(value); })) continue;
+
+    const organization = texto(valorFila(row, headers, ["organization", "organizacion", "organización", "nombre", "institucion", "institución"]));
+    const requestedItems = texto(valorFila(row, headers, ["requested_items", "items", "insumos", "necesidades", "necesidades_prioritarias"]));
+    if (!organization && !requestedItems) continue;
+
+    donaciones.push({
+      donation_type: texto(valorFila(row, headers, ["donation_type", "tipo_donacion", "tipo", "type"])),
+      organization,
+      city: texto(valorFila(row, headers, ["city", "ciudad"])),
+      state: texto(valorFila(row, headers, ["state", "estado"])),
+      priority: texto(valorFila(row, headers, ["priority", "prioridad", "urgencia"])),
+      requested_items: requestedItems,
+      beneficiaries: numero(valorFila(row, headers, ["beneficiaries", "beneficiarios", "personas_beneficiadas"]), 0),
+      verified: esSi(valorFila(row, headers, ["verified", "verificado", "validado"])),
+      last_update: fechaISO(valorFila(row, headers, ["last_update", "actualizado", "fecha_actualizacion", "fecha"])),
+      status: texto(valorFila(row, headers, ["status", "estado_entrega", "estatus"])),
+      responsable: texto(valorFila(row, headers, ["responsable", "responsible"])),
+      contacto: texto(valorFila(row, headers, ["contacto", "contact", "telefono", "teléfono"])),
+      especialidad: texto(valorFila(row, headers, ["especialidad", "specialty"])),
+      disponibilidad: texto(valorFila(row, headers, ["disponibilidad", "availability"])),
+      source: "sheets"
+    });
+  }
+
+  return donaciones;
 }
 
 function obtenerSeguimientoFactura(params) {

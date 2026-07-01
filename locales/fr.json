@@ -30,7 +30,8 @@
     "call": "Appeler{target}",
     "whatsapp": "Ouvrir WhatsApp{target}",
     "close": "Fermer",
-    "progress": "Progression de {item}"
+    "progress": "Progression de {item}",
+    "donationFilters": "Filtres des dons humanitaires"
   },
   "nav": {
     "home": "Accueil",
@@ -38,15 +39,16 @@
     "volunteers": "Bénévoles",
     "rescuers": "Secouristes",
     "searchFamily": "Rechercher un proche",
-    "traceability": "Suivi",
+    "traceability": "Dons",
     "centersLong": "Centres d'aide",
     "volunteersLong": "Inscription des bénévoles",
     "rescuersLong": "Inscription des secouristes",
-    "traceabilityLong": "Suivi des dons",
+    "traceabilityLong": "Centre de dons",
     "volunteersShort": "Bénév.",
     "rescueShort": "Secours",
     "searchShort": "Recherche",
-    "tokenShort": "Jeton"
+    "tokenShort": "Jeton",
+    "donationsShort": "Donner"
   },
   "status": {
     "live": "Données Google Sheets",
@@ -291,7 +293,8 @@
     "closed": "Clôture :",
     "movement": "Mouvement",
     "openEvidence": "Ouvrir la preuve",
-    "evidenceFile": "Preuve"
+    "evidenceFile": "Preuve",
+    "panelTitle": "Traçabilité publique par jeton"
   },
   "modal": {
     "historyTitle": "Historique des mouvements",
@@ -435,7 +438,12 @@
       "Jabón": "Savon",
       "Calzado": "Chaussures",
       "Oxímetros": "Oxymètres",
-      "Guantes": "Gants"
+      "Guantes": "Gants",
+      "Material médico": "Matériel médical",
+      "Transporte": "Transport",
+      "Kits de higiene": "Kits d’hygiène",
+      "Equipos": "Équipements",
+      "Herramientas": "Outils"
     },
     "units": {
       "paquetes": "paquets",
@@ -484,6 +492,225 @@
       "Guardia nocturna": "Garde de nuit",
       "Turnos de tarde": "Services de l'après-midi",
       "Fines de semana": "Week-ends"
+    },
+    "donationPriorities": {
+      "Crítico": "Critique",
+      "Alto": "Élevé",
+      "Medio": "Moyen"
+    },
+    "aidStatus": {
+      "Pendiente": "En attente",
+      "En proceso": "En cours",
+      "Entregado": "Livré"
+    }
+  },
+  "donations": {
+    "title": "Centre de Dons Humanitaires",
+    "copy": "Coordination nationale des centres de collecte, hôpitaux, bénévoles, secouristes et traçabilité publique.",
+    "heroUrgentAction": "Voir les urgences",
+    "heroTrackingAction": "Consulter le jeton",
+    "dashboardTitle": "Tableau humanitaire",
+    "dashboardCopy": "Indicateurs consolidés depuis les registres de la plateforme et les données compatibles avec Google Sheets.",
+    "filtersTitle": "Filtres avancés",
+    "filters": {
+      "type": "Type d’aide",
+      "urgency": "Niveau d’urgence",
+      "cityPlaceholder": "Filtrer par ville",
+      "recent": "Date récente",
+      "verified": "Vérifiés",
+      "collectionCenters": "Centres de collecte",
+      "hospitals": "Hôpitaux",
+      "volunteers": "Bénévoles",
+      "rescuers": "Secouristes",
+      "count": "Affichage de {shown} sur {total} demandes"
+    },
+    "urgentTitle": "Demandes urgentes",
+    "urgentCopy": "Hôpitaux critiques, centres en pénurie extrême et urgences médicales.",
+    "mapTitle": "Carte des besoins",
+    "mapCopy": "Résumé régional prêt pour une future intégration géographique lorsque des coordonnées vérifiées existent.",
+    "mapRequests": "Demandes",
+    "needsTitle": "Besoins prioritaires",
+    "needsCopy": "Classement dynamique par volume de demandes et urgence opérationnelle.",
+    "impactTitle": "Impact humanitaire",
+    "impactCopy": "Compteurs opérationnels calculés depuis les registres disponibles.",
+    "sections": {
+      "collectionCenters": "Centres de collecte",
+      "hospitals": "Hôpitaux",
+      "volunteers": "Bénévoles",
+      "rescuers": "Secouristes"
+    },
+    "historyTitle": "Historique de l’aide",
+    "historyCopy": "Préparé pour les états En attente, En cours et Livré depuis Google Sheets.",
+    "inKindTitle": "Dons en nature",
+    "servicesTitle": "Dons de services",
+    "alliesTitle": "Alliés humanitaires",
+    "alliesCopy": "Structure préparée pour ONG, hôpitaux, universités, entreprises et centres communautaires.",
+    "transparencyTitle": "Transparence",
+    "transparencyCopy": "Les demandes affichées proviennent de registres documentés dans la plateforme. Les informations peuvent être auditées et validées via les registres stockés dans Google Sheets.",
+    "emptyFiltered": "Aucune demande ne correspond à ces filtres.",
+    "emptySection": "Aucun registre pour cette section avec les filtres actuels.",
+    "kpis": {
+      "collectionCenters": "Centres de collecte actifs",
+      "collectionCentersMeta": "Points prêts à recevoir des dons",
+      "hospitals": "Hôpitaux demandant de l’aide",
+      "hospitalsMeta": "Cas médicaux et fournitures critiques",
+      "volunteers": "Bénévoles inscrits",
+      "volunteersMeta": "Personnes disponibles pour aider",
+      "rescuers": "Secouristes actifs",
+      "rescuersMeta": "Équipes avec capacité opérationnelle",
+      "urgentRequests": "Demandes urgentes",
+      "urgentRequestsMeta": "Priorité critique ou élevée",
+      "registeredDonations": "Dons enregistrés",
+      "registeredDonationsMeta": "Demandes et soutiens documentés",
+      "beneficiaries": "Personnes bénéficiaires",
+      "beneficiariesMeta": "Estimation opérationnelle cumulée"
+    },
+    "impact": {
+      "beneficiaries": "Personnes bénéficiaires",
+      "hospitals": "Hôpitaux soutenus",
+      "centers": "Centres soutenus",
+      "deliveries": "Livraisons réalisées",
+      "volunteers": "Bénévoles actifs"
+    },
+    "actions": {
+      "donateCenter": "Donner à ce centre",
+      "supportHospital": "Soutenir l’hôpital",
+      "supportVolunteer": "Soutenir le bénévole",
+      "supportRescuer": "Soutenir le secouriste"
+    },
+    "card": {
+      "responsible": "Responsable"
+    },
+    "badges": {
+      "verified": "Vérifié",
+      "pendingValidation": "Validation en attente",
+      "activeRequest": "Demande active",
+      "recent": "Mis à jour récemment",
+      "lastUpdate": "Mis à jour {date}",
+      "example": "Exemple",
+      "documented": "Documenté"
+    },
+    "urgentTags": {
+      "critical": "CRITIQUE",
+      "urgent": "URGENT",
+      "high": "HAUTE PRIORITÉ"
+    },
+    "transparency": {
+      "lastUpdate": "Date de mise à jour",
+      "source": "Source des données",
+      "validation": "État de validation",
+      "platformSource": "Registres documentés de la plateforme et de Google Sheets",
+      "exampleSource": "Données simulées d’exemple",
+      "validated": "Validation opérationnelle disponible",
+      "exampleValidation": "Exemple visible jusqu’à réception de colonnes compatibles"
+    },
+    "defaults": {
+      "organization": "Organisation humanitaire",
+      "supplies": "Fournitures prioritaires",
+      "coordination": "Coordination locale",
+      "hospitalSpecialty": "Urgences"
+    },
+    "mock": {
+      "centerName": "Centre communautaire Vargas",
+      "hospitalName": "Hôpital d’urgence La Guaira",
+      "volunteerName": "Équipe bénévole du littoral",
+      "rescueName": "Brigade de secours métropolitaine",
+      "cityOne": "Catia La Mar",
+      "cityTwo": "Maiquetía",
+      "cityThree": "Caraballeda",
+      "cityFour": "Caracas",
+      "stateOne": "La Guaira",
+      "stateTwo": "La Guaira",
+      "stateThree": "La Guaira",
+      "stateFour": "District Capital",
+      "coordinator": "Coordination communautaire",
+      "medicalLead": "Direction médicale",
+      "rescueLead": "Coordinateur opérationnel",
+      "emergency": "Urgences",
+      "logistics": "Logistique",
+      "daytime": "Service de jour",
+      "rescueSpecialty": "Secours urbain"
+    },
+    "messages": {
+      "contactPending": "Le contact est en attente de publication pour cette demande."
+    },
+    "inKind": {
+      "water": {
+        "title": "Eau",
+        "copy": "Eau potable et solutions d’hydratation."
+      },
+      "food": {
+        "title": "Aliments",
+        "copy": "Aliments non périssables et rations familiales."
+      },
+      "medicine": {
+        "title": "Médicaments",
+        "copy": "Médicaments essentiels et traitements de base."
+      },
+      "medicalEquipment": {
+        "title": "Équipements médicaux",
+        "copy": "Fournitures cliniques, équipements et matériel médical."
+      },
+      "hygiene": {
+        "title": "Hygiène",
+        "copy": "Kits d’hygiène personnelle et nettoyage."
+      },
+      "transport": {
+        "title": "Transport",
+        "copy": "Transport de fournitures et de personnes vulnérables."
+      },
+      "fuel": {
+        "title": "Carburant",
+        "copy": "Soutien aux itinéraires, ambulances et logistique."
+      }
+    },
+    "services": {
+      "transport": {
+        "title": "Transport",
+        "copy": "Véhicules, itinéraires et conducteurs disponibles."
+      },
+      "medicalCare": {
+        "title": "Soins médicaux",
+        "copy": "Personnel de santé et premiers secours."
+      },
+      "logistics": {
+        "title": "Logistique",
+        "copy": "Tri, inventaire et distribution."
+      },
+      "translation": {
+        "title": "Traduction",
+        "copy": "Soutien multilingue à la coordination."
+      },
+      "communication": {
+        "title": "Communication",
+        "copy": "Diffusion, vérification et liens communautaires."
+      },
+      "psychologicalSupport": {
+        "title": "Soutien psychologique",
+        "copy": "Soutien émotionnel et orientation familiale."
+      }
+    },
+    "allies": {
+      "ngos": {
+        "title": "ONG",
+        "copy": "Organisations prêtes pour une validation future."
+      },
+      "hospitals": {
+        "title": "Hôpitaux",
+        "copy": "Réseau sanitaire et unités d’urgence."
+      },
+      "universities": {
+        "title": "Universités",
+        "copy": "Bénévolat technique et espaces de collecte."
+      },
+      "companies": {
+        "title": "Entreprises",
+        "copy": "Capacité logistique, fournitures et transport."
+      },
+      "communityCenters": {
+        "title": "Centres communautaires",
+        "copy": "Points locaux de distribution et d’inscription."
+      }
     }
   }
 }

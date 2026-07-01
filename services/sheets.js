@@ -25,6 +25,7 @@
       trayectos: [],
       historial: [],
       facturas: [],
+      donacionesHumanitarias: [],
       estadisticas: {}
     };
   }
@@ -43,11 +44,17 @@
   }
 
   async function fetchJson(url) {
-    const resp = await fetch(url, { redirect: 'follow' });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-    if (data && data.error) throw new Error(data.error);
-    return data || {};
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
+    try {
+      const resp = await fetch(url, { redirect: 'follow', signal: controller.signal });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      if (data && data.error) throw new Error(data.error);
+      return data || {};
+    } finally {
+      window.clearTimeout(timeout);
+    }
   }
 
   function normalizeAll(data) {
@@ -60,6 +67,7 @@
       trayectos: data.trayectos || [],
       historial: data.historial || data.movimientos || [],
       facturas: data.facturas || [],
+      donacionesHumanitarias: data.donacionesHumanitarias || data.donaciones_humanitarias || data.donations || [],
       estadisticas: data.estadisticas || data.stats || {}
     });
   }
@@ -110,6 +118,7 @@
     getHistorial: (lugar) => getAction('historial', 'movimientos', { centro: lugar }),
     getFamiliares: (query) => getAction('buscar_familiar', 'resultados', { q: query }),
     getFacturas: (params) => getAction('facturas', 'facturas', params),
+    getDonacionesHumanitarias: (params) => getAction('donaciones_humanitarias', 'donacionesHumanitarias', params),
     getSeguimiento,
     post
   };

@@ -30,7 +30,8 @@
     "call": "Llamar{target}",
     "whatsapp": "Abrir WhatsApp{target}",
     "close": "Cerrar",
-    "progress": "Avance de {item}"
+    "progress": "Avance de {item}",
+    "donationFilters": "Filtros de donaciones humanitarias"
   },
   "nav": {
     "home": "Inicio",
@@ -38,15 +39,16 @@
     "volunteers": "Voluntarios",
     "rescuers": "Rescatistas",
     "searchFamily": "Buscar familiar",
-    "traceability": "Seguimiento",
+    "traceability": "Donaciones",
     "centersLong": "Centros de ayuda",
     "volunteersLong": "Registro de voluntarios",
     "rescuersLong": "Registro de rescatistas",
-    "traceabilityLong": "Seguimiento de donaciones",
+    "traceabilityLong": "Centro de donaciones",
     "volunteersShort": "Volunt.",
     "rescueShort": "Rescate",
     "searchShort": "Buscar",
-    "tokenShort": "Token"
+    "tokenShort": "Token",
+    "donationsShort": "Donar"
   },
   "status": {
     "live": "Datos de Google Sheets",
@@ -291,7 +293,8 @@
     "closed": "Cierre:",
     "movement": "Movimiento",
     "openEvidence": "Abrir evidencia",
-    "evidenceFile": "Evidencia"
+    "evidenceFile": "Evidencia",
+    "panelTitle": "Trazabilidad pública por token"
   },
   "modal": {
     "historyTitle": "Historial de movimientos",
@@ -435,7 +438,12 @@
       "Jabón": "Jabón",
       "Calzado": "Calzado",
       "Oxímetros": "Oxímetros",
-      "Guantes": "Guantes"
+      "Guantes": "Guantes",
+      "Material médico": "Material médico",
+      "Transporte": "Transporte",
+      "Kits de higiene": "Kits de higiene",
+      "Equipos": "Equipos",
+      "Herramientas": "Herramientas"
     },
     "units": {
       "paquetes": "paquetes",
@@ -484,6 +492,225 @@
       "Guardia nocturna": "Guardia nocturna",
       "Turnos de tarde": "Turnos de tarde",
       "Fines de semana": "Fines de semana"
+    },
+    "donationPriorities": {
+      "Crítico": "Crítico",
+      "Alto": "Alto",
+      "Medio": "Medio"
+    },
+    "aidStatus": {
+      "Pendiente": "Pendiente",
+      "En proceso": "En proceso",
+      "Entregado": "Entregado"
+    }
+  },
+  "donations": {
+    "title": "Centro de Donaciones Humanitarias",
+    "copy": "Coordinación nacional de acopios, hospitales, voluntarios, rescatistas y trazabilidad pública.",
+    "heroUrgentAction": "Ver urgencias",
+    "heroTrackingAction": "Consultar token",
+    "dashboardTitle": "Dashboard humanitario",
+    "dashboardCopy": "Indicadores consolidados desde registros de la plataforma y datos compatibles con Google Sheets.",
+    "filtersTitle": "Filtros avanzados",
+    "filters": {
+      "type": "Tipo de ayuda",
+      "urgency": "Nivel de urgencia",
+      "cityPlaceholder": "Filtrar por ciudad",
+      "recent": "Fecha reciente",
+      "verified": "Verificados",
+      "collectionCenters": "Centros de acopio",
+      "hospitals": "Hospitales",
+      "volunteers": "Voluntarios",
+      "rescuers": "Rescatistas",
+      "count": "Mostrando {shown} de {total} solicitudes"
+    },
+    "urgentTitle": "Solicitudes urgentes",
+    "urgentCopy": "Hospitales críticos, centros con escasez extrema y emergencias médicas.",
+    "mapTitle": "Mapa de necesidades",
+    "mapCopy": "Resumen regional listo para futura integración geográfica cuando existan coordenadas verificadas.",
+    "mapRequests": "Solicitudes",
+    "needsTitle": "Necesidades prioritarias",
+    "needsCopy": "Ranking dinámico por volumen de solicitudes y urgencia operativa.",
+    "impactTitle": "Impacto humanitario",
+    "impactCopy": "Contadores operativos calculados desde los registros disponibles.",
+    "sections": {
+      "collectionCenters": "Centros de Acopio",
+      "hospitals": "Hospitales",
+      "volunteers": "Voluntarios",
+      "rescuers": "Rescatistas"
+    },
+    "historyTitle": "Historial de ayuda",
+    "historyCopy": "Preparado para estados Pendiente, En proceso y Entregado desde Google Sheets.",
+    "inKindTitle": "Donaciones en especie",
+    "servicesTitle": "Donación de servicios",
+    "alliesTitle": "Aliados humanitarios",
+    "alliesCopy": "Estructura preparada para ONG, hospitales, universidades, empresas y centros comunitarios.",
+    "transparencyTitle": "Transparencia",
+    "transparencyCopy": "Las solicitudes mostradas provienen de registros documentados dentro de la plataforma. La información puede ser auditada y validada mediante los registros almacenados en Google Sheets.",
+    "emptyFiltered": "No hay solicitudes con esos filtros.",
+    "emptySection": "No hay registros para esta sección con los filtros actuales.",
+    "kpis": {
+      "collectionCenters": "Centros de acopio activos",
+      "collectionCentersMeta": "Puntos listos para recibir donaciones",
+      "hospitals": "Hospitales solicitando ayuda",
+      "hospitalsMeta": "Casos médicos y suministros críticos",
+      "volunteers": "Voluntarios registrados",
+      "volunteersMeta": "Personas disponibles para apoyar",
+      "rescuers": "Rescatistas activos",
+      "rescuersMeta": "Equipos con capacidad operativa",
+      "urgentRequests": "Solicitudes urgentes",
+      "urgentRequestsMeta": "Prioridad crítica o alta",
+      "registeredDonations": "Donaciones registradas",
+      "registeredDonationsMeta": "Solicitudes y apoyos documentados",
+      "beneficiaries": "Personas beneficiadas",
+      "beneficiariesMeta": "Estimación operativa acumulada"
+    },
+    "impact": {
+      "beneficiaries": "Personas beneficiadas",
+      "hospitals": "Hospitales apoyados",
+      "centers": "Centros apoyados",
+      "deliveries": "Entregas realizadas",
+      "volunteers": "Voluntarios activos"
+    },
+    "actions": {
+      "donateCenter": "Donar a este centro",
+      "supportHospital": "Apoyar hospital",
+      "supportVolunteer": "Apoyar voluntario",
+      "supportRescuer": "Apoyar rescatista"
+    },
+    "card": {
+      "responsible": "Responsable"
+    },
+    "badges": {
+      "verified": "Verificado",
+      "pendingValidation": "Validación pendiente",
+      "activeRequest": "Solicitud activa",
+      "recent": "Actualizado recientemente",
+      "lastUpdate": "Actualizado {date}",
+      "example": "Ejemplo",
+      "documented": "Documentado"
+    },
+    "urgentTags": {
+      "critical": "CRÍTICO",
+      "urgent": "URGENTE",
+      "high": "ALTA PRIORIDAD"
+    },
+    "transparency": {
+      "lastUpdate": "Fecha actualización",
+      "source": "Fuente de datos",
+      "validation": "Estado de validación",
+      "platformSource": "Registros documentados de la plataforma y Google Sheets",
+      "exampleSource": "Datos simulados de ejemplo",
+      "validated": "Validación operativa disponible",
+      "exampleValidation": "Ejemplo visible hasta recibir columnas compatibles"
+    },
+    "defaults": {
+      "organization": "Organización humanitaria",
+      "supplies": "Suministros prioritarios",
+      "coordination": "Coordinación local",
+      "hospitalSpecialty": "Emergencias"
+    },
+    "mock": {
+      "centerName": "Centro Comunitario Vargas",
+      "hospitalName": "Hospital de Emergencias La Guaira",
+      "volunteerName": "Equipo voluntario litoral",
+      "rescueName": "Brigada de rescate metropolitana",
+      "cityOne": "Catia La Mar",
+      "cityTwo": "Maiquetía",
+      "cityThree": "Caraballeda",
+      "cityFour": "Caracas",
+      "stateOne": "La Guaira",
+      "stateTwo": "La Guaira",
+      "stateThree": "La Guaira",
+      "stateFour": "Distrito Capital",
+      "coordinator": "Coordinación comunitaria",
+      "medicalLead": "Dirección médica",
+      "rescueLead": "Coordinador operativo",
+      "emergency": "Emergencias",
+      "logistics": "Logística",
+      "daytime": "Turno diurno",
+      "rescueSpecialty": "Rescate urbano"
+    },
+    "messages": {
+      "contactPending": "Contacto pendiente de publicación para esta solicitud."
+    },
+    "inKind": {
+      "water": {
+        "title": "Agua",
+        "copy": "Agua potable y soluciones de hidratación."
+      },
+      "food": {
+        "title": "Alimentos",
+        "copy": "Alimentos no perecederos y raciones familiares."
+      },
+      "medicine": {
+        "title": "Medicinas",
+        "copy": "Medicamentos esenciales y tratamientos básicos."
+      },
+      "medicalEquipment": {
+        "title": "Equipos médicos",
+        "copy": "Insumos clínicos, equipos y material médico."
+      },
+      "hygiene": {
+        "title": "Higiene",
+        "copy": "Kits de higiene personal y limpieza."
+      },
+      "transport": {
+        "title": "Transporte",
+        "copy": "Traslado de suministros y personas vulnerables."
+      },
+      "fuel": {
+        "title": "Combustible",
+        "copy": "Apoyo para rutas, ambulancias y logística."
+      }
+    },
+    "services": {
+      "transport": {
+        "title": "Transporte",
+        "copy": "Vehículos, rutas y conductores disponibles."
+      },
+      "medicalCare": {
+        "title": "Atención médica",
+        "copy": "Personal de salud y primeros auxilios."
+      },
+      "logistics": {
+        "title": "Logística",
+        "copy": "Clasificación, inventario y distribución."
+      },
+      "translation": {
+        "title": "Traducción",
+        "copy": "Apoyo multilingüe para coordinación."
+      },
+      "communication": {
+        "title": "Comunicación",
+        "copy": "Difusión, verificación y enlaces comunitarios."
+      },
+      "psychologicalSupport": {
+        "title": "Apoyo psicológico",
+        "copy": "Contención emocional y orientación familiar."
+      }
+    },
+    "allies": {
+      "ngos": {
+        "title": "ONG",
+        "copy": "Organizaciones listas para validación futura."
+      },
+      "hospitals": {
+        "title": "Hospitales",
+        "copy": "Red sanitaria y unidades de emergencia."
+      },
+      "universities": {
+        "title": "Universidades",
+        "copy": "Voluntariado técnico y espacios de acopio."
+      },
+      "companies": {
+        "title": "Empresas",
+        "copy": "Capacidad logística, insumos y transporte."
+      },
+      "communityCenters": {
+        "title": "Centros comunitarios",
+        "copy": "Puntos locales de distribución y registro."
+      }
     }
   }
 }
