@@ -1,149 +1,116 @@
 (function (window) {
   'use strict';
 
-  const DEFAULT_DELAY = 220;
   let config = {
-    appsScriptUrl: '',
-    sandboxMode: true,
-    fallback: {},
-    cacheKeys: {}
+    appsScriptUrl: ''
   };
 
   function configure(nextConfig) {
     config = Object.assign({}, config, nextConfig || {});
   }
 
-  function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  function isFile() {
-    return window.location && window.location.protocol === 'file:';
-  }
-
-  function withQuery(action, params) {
-    const url = new URL(config.appsScriptUrl);
-    if (action) url.searchParams.set('accion', action);
-    Object.keys(params || {}).forEach((key) => {
-      const value = params[key];
-      if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, value);
-    });
-    return url.toString();
-  }
-
-  function cacheRead(key) {
-    if (!key) return null;
-    try {
-      const raw = window.localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : null;
-    } catch (err) {
-      return null;
+  function assertConfigured() {
+    if (!config.appsScriptUrl || !/\/exec$/.test(config.appsScriptUrl)) {
+      throw new Error('Apps Script URL no configurada');
     }
   }
 
-  function cacheWrite(key, value) {
-    if (!key) return;
-    try {
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (err) {
-      // Sin localStorage disponible: la app sigue funcionando con memoria/fallback.
-    }
-  }
-
-  async function fetchJson(url) {
-    const resp = await fetch(url, { cache: 'no-store' });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-    if (data && data.error) throw new Error(data.error);
-    return data;
-  }
-
-  function fallbackAll() {
-    return Object.assign({
+  function emptyAll() {
+    return {
       lugares: [],
       centros: [],
       voluntarios: [],
       rescatistas: [],
       motorizados: [],
+      trayectos: [],
+      historial: [],
+      facturas: [],
       estadisticas: {}
-    }, config.fallback || {});
+    };
   }
 
-  async function demoAll() {
-    if (isFile()) return fallbackAll();
-    try {
-      const data = await fetchJson('data/ejemplo.json');
-      return Object.assign({}, fallbackAll(), data, {
-        lugares: data.lugares || data.centros || fallbackAll().lugares,
-        centros: data.centros || data.lugares || fallbackAll().lugares,
-        voluntarios: fallbackAll().voluntarios,
-        rescatistas: fallbackAll().rescatistas,
-        estadisticas: fallbackAll().estadisticas
-      });
-    } catch (err) {
-      return fallbackAll();
-    }
+  function withQuery(action, params) {
+    assertConfigured();
+    const url = new URL(config.appsScriptUrl);
+    if (action) url.searchParams.set('accion', action);
+    Object.keys(params || {}).forEach((key) => {
+      const value = params[key];
+      if (value !== undefined && value !== null && value !== '') {
+        url.searchParams.set(key, String(value));
+      }
+    });
+    return url.toString();
+  }
+
+  async function fetchJson(url) {
+    const resp = await fetch(url, { redirect: 'follow' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (data && data.error) throw new Error(data.error);
+    return data || {};
+  }
+
+  function normalizeAll(data) {
+    return Object.assign(emptyAll(), data || {}, {
+      lugares: data.lugares || data.centros || [],
+      centros: data.centros || data.lugares || [],
+      voluntarios: data.voluntarios || [],
+      rescatistas: data.rescatistas || [],
+      motorizados: data.motorizados || [],
+      trayectos: data.trayectos || [],
+      historial: data.historial || data.movimientos || [],
+      facturas: data.facturas || [],
+      estadisticas: data.estadisticas || data.stats || {}
+    });
   }
 
   async function getAll() {
-    const cacheKey = config.cacheKeys.all;
     try {
-      const data = config.sandboxMode ? await demoAll() : await fetchJson(config.appsScriptUrl);
-      const normalized = Object.assign({}, fallbackAll(), data, {
-        lugares: data.lugares || data.centros || [],
-        centros: data.centros || data.lugares || [],
-        estadisticas: data.estadisticas || data.stats || {}
-      });
-      cacheWrite(cacheKey, normalized);
-      return { data: normalized, source: config.sandboxMode ? 'demo' : 'live' };
+      const data = await fetchJson(withQuery('', {}));
+      return { data: normalizeAll(data), source: 'live' };
     } catch (err) {
-      const cached = cacheRead(cacheKey);
-      if (cached) return { data: cached, source: 'cache' };
-      return { data: fallbackAll(), source: 'demo', error: err };
+      return { data: emptyAll(), source: 'error', error: err };
     }
   }
 
-  async function getAction(action, responseKey, cacheKey, fallbackValue, params) {
+  async function getAction(action, responseKey, params) {
     try {
-      if (config.sandboxMode) {
-        await delay(DEFAULT_DELAY);
-        return { data: fallbackValue || [], source: 'demo' };
-      }
       const data = await fetchJson(withQuery(action, params || {}));
-      const value = data[responseKey] || [];
-      cacheWrite(cacheKey, value);
-      return { data: value, source: 'live' };
+      return { data: data[responseKey] || [], source: 'live' };
     } catch (err) {
-      const cached = cacheRead(cacheKey);
-      if (cached) return { data: cached, source: 'cache' };
-      return { data: fallbackValue || [], source: 'demo', error: err };
+      return { data: [], source: 'error', error: err };
     }
   }
 
-  async function post(payload, optimistic) {
-    if (config.sandboxMode) {
-      await delay(DEFAULT_DELAY);
-      return Object.assign({ success: true, exito: true, demo: true }, optimistic || {});
+  async function post(payload) {
+    const data = await fetchJson(withQuery(payload && payload.accion, payload || {}));
+    if (data.success === false || data.exito === false) {
+      throw new Error(data.error || 'No se pudo guardar en Google Sheets');
     }
-    await fetch(config.appsScriptUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify(payload || {})
-    });
-    return Object.assign({ success: true, exito: true, opaque: true }, optimistic || {});
+    return data;
+  }
+
+  async function getSeguimiento(token) {
+    try {
+      const data = await fetchJson(withQuery('seguimiento_factura', { token }));
+      return { data, source: 'live' };
+    } catch (err) {
+      return { data: null, source: 'error', error: err };
+    }
   }
 
   window.SheetsService = {
     configure,
     getAll,
-    getLugares: (params) => getAction('lugares', 'lugares', config.cacheKeys.lugares, fallbackAll().lugares, params),
-    getVoluntarios: (params) => getAction('voluntarios', 'voluntarios', config.cacheKeys.voluntarios, fallbackAll().voluntarios, params),
-    getRescatistas: (params) => getAction('rescatistas', 'rescatistas', config.cacheKeys.rescatistas, fallbackAll().rescatistas, params),
-    getMotorizados: (params) => getAction('motorizados', 'motorizados', config.cacheKeys.motorizados, fallbackAll().motorizados, params),
-    getTrayectos: (motorizadoId) => getAction('trayectos', 'trayectos', config.cacheKeys.trayectos, fallbackAll().trayectos || [], { motorizado: motorizadoId }),
-    getHistorial: (lugar) => getAction('historial', 'movimientos', config.cacheKeys.historial, fallbackAll().historial || [], { centro: lugar }),
-    post,
-    cacheRead,
-    cacheWrite
+    getLugares: (params) => getAction('lugares', 'lugares', params),
+    getVoluntarios: (params) => getAction('voluntarios', 'voluntarios', params),
+    getRescatistas: (params) => getAction('rescatistas', 'rescatistas', params),
+    getMotorizados: (params) => getAction('motorizados', 'motorizados', params),
+    getTrayectos: (motorizadoId) => getAction('trayectos', 'trayectos', { motorizado: motorizadoId }),
+    getHistorial: (lugar) => getAction('historial', 'movimientos', { centro: lugar }),
+    getFamiliares: (query) => getAction('buscar_familiar', 'resultados', { q: query }),
+    getFacturas: (params) => getAction('facturas', 'facturas', params),
+    getSeguimiento,
+    post
   };
 })(window);

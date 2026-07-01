@@ -38,19 +38,21 @@
     "volunteers": "Bénévoles",
     "rescuers": "Secouristes",
     "searchFamily": "Rechercher un proche",
+    "traceability": "Suivi",
     "centersLong": "Centres d'aide",
     "volunteersLong": "Inscription des bénévoles",
     "rescuersLong": "Inscription des secouristes",
+    "traceabilityLong": "Suivi des dons",
     "volunteersShort": "Bénév.",
     "rescueShort": "Secours",
-    "searchShort": "Recherche"
+    "searchShort": "Recherche",
+    "tokenShort": "Jeton"
   },
   "status": {
-    "live": "Données en direct",
-    "cache": "Données enregistrées",
-    "demo": "Mode démo",
-    "cacheBanner": "Hors ligne. Affichage des dernières données enregistrées.",
-    "demoBanner": "Mode démo : connectez l'URL Apps Script pour voir les données réelles."
+    "live": "Données Google Sheets",
+    "loading": "Connexion à Sheets",
+    "error": "Sheets indisponible",
+    "errorBanner": "Impossible de lire Google Sheets. Aucune donnée alternative n'est affichée."
   },
   "hero": {
     "eyebrow": "Coordination humanitaire active",
@@ -101,8 +103,9 @@
   },
   "urgent": {
     "title": "Besoins urgents",
-    "copy": "Prêt à se connecter à une feuille de priorités opérationnelles.",
-    "priority": "priorité"
+    "copy": "Priorités calculées depuis les enregistrements actuels de Google Sheets.",
+    "priority": "priorité",
+    "empty": "Aucun besoin n'est enregistré dans Google Sheets."
   },
   "map": {
     "title": "Centres d'aide et opérations",
@@ -251,19 +254,44 @@
   },
   "family": {
     "title": "Rechercher un proche",
-    "copy": "Recherchez par nom ou pièce d'identité dans les registres disponibles. La source réelle dépend du webhook N8N configuré.",
+    "copy": "Recherchez par nom ou pièce d'identité dans les feuilles Google Sheets personas ou familiares.",
     "queryLabel": "Nom complet ou pièce d'identité",
     "queryPlaceholder": "V-12345678 ou nom complet",
     "submit": "Rechercher un proche",
     "searching": "Recherche...",
-    "demoMessage": "Mode démo : résultats d'exemple, non réels.",
+    "errorMessage": "Impossible de consulter Google Sheets pour cette recherche.",
     "notFound": "Nous n'avons pas trouvé cette personne dans les registres disponibles.",
     "idLabel": "Pièce d'identité :",
     "locationLabel": "Emplacement :",
     "sourceLabel": "Source :",
     "updatedLabel": "Mis à jour :",
-    "supportLine": "Ligne d'aide psychologique : 0800-AYUDA (exemple ; remplacer par la ligne officielle en vigueur).",
+    "supportLine": "Ligne d'aide psychologique : en attente de publication officielle.",
     "lastSeenPrefix": "Dernière fois :"
+  },
+  "tracking": {
+    "title": "Suivi des dons",
+    "copy": "Consultez la traçabilité publique d'une facture avec le jeton remis au donateur.",
+    "tokenLabel": "Jeton public",
+    "tokenPlaceholder": "DV-8K4P-X2MN-7QTR",
+    "submit": "Consulter la facture",
+    "searching": "Consultation de Google Sheets...",
+    "invalidToken": "Saisissez un jeton au format DV-XXXX-XXXX-XXXX.",
+    "notFound": "Aucune facture n'a été trouvée pour ce jeton.",
+    "error": "Impossible de consulter la traçabilité dans Google Sheets.",
+    "invoice": "Facture",
+    "requiredAmount": "Montant requis",
+    "raisedAmount": "Montant collecté",
+    "progress": "Pourcentage complété",
+    "history": "Historique financier",
+    "evidence": "Preuves publiques",
+    "noHistory": "Aucun mouvement financier n'a été publié pour cette facture.",
+    "noEvidence": "Aucune preuve publique n'a été publiée pour cette facture.",
+    "currentStatus": "État actuel :",
+    "created": "Créée :",
+    "closed": "Clôture :",
+    "movement": "Mouvement",
+    "openEvidence": "Ouvrir la preuve",
+    "evidenceFile": "Preuve"
   },
   "modal": {
     "historyTitle": "Historique des mouvements",

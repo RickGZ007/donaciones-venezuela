@@ -38,19 +38,21 @@
     "volunteers": "Volunteers",
     "rescuers": "Rescuers",
     "searchFamily": "Find family",
+    "traceability": "Tracking",
     "centersLong": "Aid centers",
     "volunteersLong": "Volunteer registration",
     "rescuersLong": "Rescuer registration",
+    "traceabilityLong": "Donation tracking",
     "volunteersShort": "Vol.",
     "rescueShort": "Rescue",
-    "searchShort": "Search"
+    "searchShort": "Search",
+    "tokenShort": "Token"
   },
   "status": {
-    "live": "Live data",
-    "cache": "Saved data",
-    "demo": "Demo mode",
-    "cacheBanner": "Offline. Showing the latest saved data.",
-    "demoBanner": "Demo mode: connect the Apps Script URL to view real data."
+    "live": "Google Sheets data",
+    "loading": "Connecting to Sheets",
+    "error": "Sheets unavailable",
+    "errorBanner": "Google Sheets could not be read. No alternate data is shown."
   },
   "hero": {
     "eyebrow": "Active humanitarian coordination",
@@ -101,8 +103,9 @@
   },
   "urgent": {
     "title": "Urgent needs",
-    "copy": "Ready to connect to an operational priorities sheet.",
-    "priority": "priority"
+    "copy": "Priorities calculated from current Google Sheets records.",
+    "priority": "priority",
+    "empty": "No needs are registered in Google Sheets."
   },
   "map": {
     "title": "Aid centers and operations",
@@ -251,19 +254,44 @@
   },
   "family": {
     "title": "Find family",
-    "copy": "Search by name or ID in available records. The real source depends on the configured N8N webhook.",
+    "copy": "Search by name or ID in the Google Sheets personas or familiares tabs.",
     "queryLabel": "Full name or ID",
     "queryPlaceholder": "V-12345678 or full name",
     "submit": "Find family",
     "searching": "Searching...",
-    "demoMessage": "Demo mode: sample results, not real records.",
+    "errorMessage": "Google Sheets could not be queried for this search.",
     "notFound": "We did not find this person in the available records.",
     "idLabel": "ID:",
     "locationLabel": "Location:",
     "sourceLabel": "Source:",
     "updatedLabel": "Updated:",
-    "supportLine": "Psychological support line: 0800-AYUDA (sample; replace with the current official line).",
+    "supportLine": "Psychological support line: pending official publication.",
     "lastSeenPrefix": "Last seen:"
+  },
+  "tracking": {
+    "title": "Donation tracking",
+    "copy": "Look up the public traceability record for an invoice with the token shared with the donor.",
+    "tokenLabel": "Public token",
+    "tokenPlaceholder": "DV-8K4P-X2MN-7QTR",
+    "submit": "Check invoice",
+    "searching": "Checking Google Sheets...",
+    "invalidToken": "Enter a token in the DV-XXXX-XXXX-XXXX format.",
+    "notFound": "No invoice was found for that token.",
+    "error": "The traceability record could not be read from Google Sheets.",
+    "invoice": "Invoice",
+    "requiredAmount": "Required amount",
+    "raisedAmount": "Raised amount",
+    "progress": "Completion percentage",
+    "history": "Financial history",
+    "evidence": "Public evidence",
+    "noHistory": "No financial movements have been published for this invoice.",
+    "noEvidence": "No public evidence has been published for this invoice.",
+    "currentStatus": "Current status:",
+    "created": "Created:",
+    "closed": "Closed:",
+    "movement": "Movement",
+    "openEvidence": "Open evidence",
+    "evidenceFile": "Evidence"
   },
   "modal": {
     "historyTitle": "Movement history",

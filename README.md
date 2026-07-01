@@ -1,156 +1,89 @@
-# 🆘 Donaciones Venezuela
+# Respuesta Humanitaria Venezuela
 
-App web de respuesta rápida a los terremotos de Venezuela del 24 de junio de 2026.
-Sin dependencias, sin build, sin servidor propio: un solo `index.html` + Google Sheets como base de datos + Google Apps Script como backend + Vercel como hosting.
+Aplicación estática para coordinar centros de ayuda, hospitales, refugios, voluntarios, rescatistas, transportistas, trayectos, aportes, búsqueda familiar y trazabilidad pública de donaciones por factura.
 
----
+## Fuente de datos
 
-## 1. ¿Qué hace esta app?
+La única fuente operativa es Google Sheets mediante este Google Apps Script:
 
-Tiene **dos pestañas**:
-
-1. **🎁 Donaciones** — lista de **centros de acopio** y **hospitales** con lo que **necesitan** y lo que **tienen disponible** para compartir. Incluye **matching automático**: si un lugar necesita un insumo y otro lo tiene disponible, la app lo señala sola. Botones directos de **📞 Llamar** y **💬 WhatsApp**.
-2. **🔍 Buscar familiar** — permite buscar por nombre o cédula en los registros de personas reportadas (localizadas, en refugio, hospitalizadas, etc.). Consulta un **webhook de N8N** (lo aporta un compañero del equipo). Mientras llega esa URL, funciona en **modo demo** con datos de ejemplo.
-
-La app es **mobile first**, funciona **parcialmente offline** (cachea los últimos datos en el navegador) y **arranca con datos de ejemplo** apenas la abres, sin configurar nada.
-
----
-
-## 2. Setup completo paso a paso
-
-> Puedes **abrir `index.html` directamente** (doble clic) para verla funcionando en modo demo ahora mismo. Para datos en vivo, sigue estos pasos (~30 min).
-
-### Paso 1 — Crear el Google Sheet
-1. Entra a [sheets.new](https://sheets.new) y crea una hoja de cálculo.
-2. Renombra la pestaña inferior a **`lugares`** (en minúsculas).
-3. En la **fila 1**, pon estos encabezados (columnas A a H):
-
-   `Tipo` · `Nombre` · `Ubicacion` · `Telefono` · `Insumo` · `Categoria` · `Estado` · `Actualizado`
-
-4. Llena una fila **por cada insumo de cada lugar**. Ejemplo:
-
-   | Tipo | Nombre | Ubicacion | Telefono | Insumo | Categoria | Estado | Actualizado |
-   |---|---|---|---|---|---|---|---|
-   | Centro | Iglesia San José | Los Corales, La Guaira | +58 412 555 1234 | Gasas estériles | Medicinas | Necesita | 2026-06-28 |
-   | Hospital | Hospital El Algodonal | El Algodonal, Caracas | +58 212 555 5000 | Gasas estériles | Suministros quirúrgicos | Tiene disponible | 2026-06-28 |
-
-   > **Atajo (recomendado):** en vez de teclear filas a mano, importa el archivo `data/lugares.csv` del repo — *Archivo → Importar → Subir → elige `lugares.csv` → "Reemplazar la hoja actual" → Importar datos*. Trae los mismos 5 lugares del demo con las coincidencias listas.
-
-5. Copia el **ID del Sheet**: en la URL `https://docs.google.com/spreadsheets/d/`**`ESTO_DE_AQUI`**`/edit`.
-
-### Paso 2 — Publicar el Apps Script (backend)
-1. En el Sheet: menú **Extensiones → Apps Script**.
-2. Borra el contenido y pega **todo** el archivo `apps-script/codigo.gs`.
-3. Arriba del archivo, reemplaza `YOUR_SHEET_ID` por el ID que copiaste.
-4. **Implementar → Nueva implementación → tipo: Aplicación web**.
-   - *Ejecutar como:* **Yo**
-   - *Quién tiene acceso:* **Cualquier usuario**
-5. Autoriza los permisos cuando lo pida y copia la **URL `.../exec`** que te da.
-
-> ⚠️ **Al actualizar el código del Apps Script más adelante**, no crees otra "Nueva implementación" (eso genera una URL `/exec` distinta y tendrías que volver a tocar `index.html`). Usa **Implementar → Gestionar implementaciones → editar ✏️ → Versión: _Nueva versión_ → Implementar**: así la misma URL `/exec` toma el código nuevo.
->
-> 📌 Dos errores típicos al configurar: (a) `SHEET_ID` es **solo el ID** del Sheet (lo que va entre `/d/` y `/edit`), **no** la URL `/exec` del script; (b) el `/exec` redirige internamente a `script.googleusercontent.com` — por eso el `vercel.json` incluye ese dominio en la CSP (si lo quitas, el navegador bloquea los datos y la app cae a modo demo).
-
-### Paso 3 — Conectar `index.html`
-1. Abre `index.html` en un editor.
-2. Busca, al inicio del `<script>`, la línea `const APPS_SCRIPT_URL = ...`.
-3. Reemplaza la URL completa por tu URL `.../exec` del paso anterior.
-4. Guarda. (Mientras la URL contenga `YOUR_SCRIPT_ID`, la app sigue en modo demo.)
-
-### Paso 4 — Desplegar en Vercel
-1. Entra a [vercel.com](https://vercel.com) e inicia sesión.
-2. Opción rápida: **arrastra la carpeta del proyecto** a Vercel (o conéctala a un repo de GitHub).
-3. Vercel detecta el sitio estático y lo publica. El `vercel.json` ya trae las cabeceras de seguridad.
-4. Comparte la URL pública. ¡Listo!
-
----
-
-## 3. Cómo editar los datos
-
-Todo se edita **en el Google Sheet** (no toques el código para esto):
-
-- **Agregar un lugar/insumo:** añade una fila nueva con sus 8 columnas.
-- **Marcar una necesidad:** columna `Estado` = `Necesita`.
-- **Marcar algo disponible para compartir:** columna `Estado` = `Tiene disponible`.
-- **Categorías válidas:**
-  - *Centros:* Alimentos, Bebidas, Ropa, Medicinas, Higiene, Herramientas, Mascotas, Otros.
-  - *Hospitales:* Medicinas, Equipos médicos, Suministros quirúrgicos, Higiene, Fluidos IV, Otros.
-- Los cambios aparecen en la app al recargar (no hay que volver a desplegar nada).
-
-> No importan mayúsculas ni acentos en `Estado` (`necesita`, `NECESITA`, `Tiene Disponible`… todo vale).
-
----
-
-## 4. Cómo funciona el matching automático
-
-La idea es simple: **lo que a un lugar le sobra, a otro le falta.**
-
-1. El backend mira todas las filas marcadas como `Necesita` y todas las marcadas como `Tiene disponible`.
-2. Para cada necesidad, busca si **otro lugar distinto** tiene ese mismo insumo disponible (comparando el nombre sin distinguir mayúsculas ni acentos, así "Gasas estériles" y "gasas esteriles" cuentan como el mismo).
-3. Cuando hay coincidencia, en la tarjeta del lugar que **necesita** aparece un botón morado **🔗 Disponible en N lugar(es)**.
-4. Al tocarlo, se despliega el lugar que **tiene** ese insumo, con sus botones de **Llamar / WhatsApp** apuntando **a ese lugar** (el que puede entregarlo), para coordinar el traslado directamente.
-
-Así nadie tiene que cruzar listas a mano.
-
----
-
-## 5. Pendiente — Buscar familiar (webhook de N8N)
-
-El módulo **Buscar familiar** ya está construido y funcionando en **modo demo** (usa `data/familiares-ejemplo.json`). Falta solo enchufar la fuente real:
-
-- Un compañero del equipo tiene el sistema de scraping en **N8N**, expuesto como **webhook**. **La URL la comparte mañana.**
-- Cuando llegue, en `index.html` reemplaza:
-  ```js
-  const BUSCAR_WEBHOOK_URL = '';   // <-- pega aquí la URL del webhook
-  ```
-- La app envía `POST { "query": "<lo que escribió el usuario>" }` y espera de vuelta:
-  ```json
-  { "encontrado": true, "resultados": [ { "nombre": "...", "cedula": "...", "estado": "...", "ubicacion": "...", "fuente": "...", "actualizado": "..." } ] }
-  ```
-- Si el **formato real** de la respuesta difiere, ajusta la función `buscarFamiliar()` en la sección `// ── BUSCAR FAMILIAR ───` del `<script>`.
-- **Seguridad:** si el webhook pide una API key, **no la pongas en `index.html`** (es código público). Hay un comentario `// TODO` marcado donde decidir cómo protegerla (proxy en Apps Script o similar). Verifica también que el webhook permita **CORS**.
-
----
-
-## 6. Troubleshooting (problemas comunes)
-
-1. **La app muestra "Modo demo" aunque configuré el Apps Script.**
-   La constante `APPS_SCRIPT_URL` todavía contiene `YOUR_SCRIPT_ID`, o no es la URL `.../exec`. Vuelve al Paso 3.
-
-2. **Sale "Sin conexión" o no carga nada en vivo.**
-   La implementación del Apps Script no es pública. Re-despliega con *Acceso: Cualquier usuario* y usa la URL `.../exec` (no la del editor).
-
-3. **El matching no aparece.**
-   Revisa que los nombres de insumo coincidan (la app ignora mayúsculas/acentos, pero no errores de tipeo) y que un lugar lo tenga como `Necesita` y **otro distinto** como `Tiene disponible`.
-
-4. **El botón de WhatsApp no abre el chat correcto.**
-   El número en la columna `Telefono` debe incluir el código de país (ej. `+58 412...`). La app deja solo los dígitos para armar el enlace `wa.me`.
-
-5. **Buscar familiar no devuelve nada real.**
-   Es lo esperado hasta que se configure `BUSCAR_WEBHOOK_URL` (ver sección 5). En modo demo solo encuentra los nombres del archivo de ejemplo.
-
----
-
-## 7. Roadmap / Fase 2
-
-- Conectar la URL real del webhook de N8N de Buscar familiar.
-- Geolocalización: ordenar lugares por cercanía al usuario.
-- Filtro por "solo lugares con coincidencias".
-- Indicador de "última actualización" global y auto-refresco.
-- Panel de administración ligero para editar el Sheet desde la propia app.
-- Soporte multi-idioma (es/en) para apoyo internacional.
-
----
-
-### Estructura del proyecto
-
+```text
+https://script.google.com/macros/s/AKfycbzY39NEDPZrRZTtu7zLfuURf_bTnYXLAhjokfOzWq80H8yzrqe_TL7Y2vp-9LpgiU2GDg/exec
 ```
-/
-├── index.html                    App completa (HTML + CSS + JS en un archivo)
-├── apps-script/codigo.gs         Backend de Google Apps Script
-├── data/ejemplo.json             Datos demo de donaciones (con matching)
-├── data/familiares-ejemplo.json  Datos demo de Buscar familiar
-├── vercel.json                   Cabeceras de seguridad para el deploy
-├── .gitignore
-└── README.md                     Este archivo
+
+Spreadsheet principal:
+
+```text
+1fnXiSy1TbPqwlLKDSfPoBfKs8pH0WptoECGq_zu_Lco
 ```
+
+La app no incluye archivos locales de registros ni datos alternativos. Si Google Sheets no responde, la interfaz muestra estado de error y listas vacías.
+
+## Estructura
+
+- `index.html`: frontend estático con HTML, CSS y JavaScript.
+- `services/sheets.js`: cliente único para lecturas y escrituras contra Apps Script.
+- `apps-script/codigo.gs`: backend de Google Apps Script para leer, escribir, buscar y sincronizar Google Sheets.
+- `locales/`: textos de interfaz en español, inglés y francés.
+- `vercel.json`: cabeceras de seguridad y CSP para Apps Script.
+
+## Hojas esperadas
+
+- `lugares`: `Tipo`, `Nombre`, `Ubicacion`, `Telefono`, `Insumo`, `Categoria`, `Estado`, `Actualizado`.
+- `voluntarios`
+- `rescatistas`
+- `motorizados`
+- `trayectos`
+- `historial_movimientos`
+- `donaciones_motorizados`
+- `facturas`: `id`, `numero_factura`, `token_publico`, `objetivo`, `descripcion`, `monto_requerido`, `monto_recaudado`, `estado`, `fecha_creacion`, `fecha_cierre`.
+- `donaciones`: `id`, `factura_id`, `nombre_donante`, `monto`, `referencia_pago`, `fecha`, `estado`.
+- `movimientos_factura`: `id`, `factura_id`, `tipo`, `descripcion`, `monto`, `fecha`.
+- `evidencias`: `id`, `factura_id`, `archivo`, `descripcion`, `fecha`.
+- Opcional para búsqueda familiar: `personas` o `familiares`.
+
+`apps-script/codigo.gs` inicializa las hojas base si faltan y mantiene `lugares` con el esquema A-H.
+
+## Trazabilidad por token
+
+La vista pública está disponible desde:
+
+```text
+/?token=DV-8K4P-X2MN-7QTR
+#seguimiento/DV-8K4P-X2MN-7QTR
+```
+
+El frontend llama `accion=seguimiento_factura` y muestra solo datos públicos: factura, objetivo, montos, porcentaje, historial financiero, evidencias públicas y estado. No expone teléfonos, correos, coordenadas, donantes, referencias de pago ni datos operativos.
+
+Endpoints Apps Script principales:
+
+- `crear_factura` / `registrar_factura`
+- `registrar_donacion` / `registrar_donacion_factura`
+- `registrar_movimiento_factura`
+- `registrar_evidencia` / `registrar_evidencia_factura`
+- `seguimiento_factura` / `seguimiento_token` / `trazabilidad`
+- `facturas`
+
+## Desarrollo local
+
+No hay bundler ni dependencias.
+
+```bash
+python3 -m http.server 8000
+```
+
+Abrir `http://127.0.0.1:8000/`.
+
+## Verificación rápida
+
+```bash
+curl -sL "https://script.google.com/macros/s/AKfycbzY39NEDPZrRZTtu7zLfuURf_bTnYXLAhjokfOzWq80H8yzrqe_TL7Y2vp-9LpgiU2GDg/exec"
+```
+
+Debe devolver JSON con `lugares`, `voluntarios`, `rescatistas`, `motorizados` y `estadisticas`.
+Si devuelve HTML de inicio de sesión de Google, el despliegue del Apps Script no está publicado para acceso anónimo y la web mostrará estado de error sin datos alternativos.
+
+## Despliegue
+
+1. Pegar el contenido actualizado de `apps-script/codigo.gs` en el proyecto de Apps Script.
+2. Desplegar una nueva versión en el despliegue existente para conservar la URL `/exec`.
+3. Publicar la app estática en Vercel.

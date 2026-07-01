@@ -10,19 +10,24 @@
  *   Tipo, Nombre, Ubicacion, Telefono, Insumo, Categoria, Estado, Actualizado
  * - Se conservan endpoints existentes de centros, motorizados, trayectos,
  *   historial y donaciones a motorizados.
- * - Se agregan hojas/endpoints para voluntarios y rescatistas.
+ * - Se agregan hojas/endpoints para voluntarios, rescatistas y trazabilidad
+ *   publica de facturas por token.
  */
 
-const SHEET_ID = "1fnXiSy1TbPqwlLKDSfPoBfKs8pH0WptoECGq_zu_Lco";
+const SHEET_ID = '1fnXiSy1TbPqwlLKDSfPoBfKs8pH0WptoECGq_zu_Lco';
 
 const LUGARES_SHEET = "lugares";
 const CENTROS_SHEET = "centros_necesidades";
 const MOTORIZADOS_SHEET = "motorizados";
 const TRAYECTOS_SHEET = "trayectos";
 const HISTORIAL_SHEET = "historial_movimientos";
-const DONACIONES_SHEET = "donaciones_motorizados";
+const DONACIONES_MOTORIZADOS_SHEET = "donaciones_motorizados";
 const VOLUNTARIOS_SHEET = "voluntarios";
 const RESCATISTAS_SHEET = "rescatistas";
+const FACTURAS_SHEET = "facturas";
+const DONACIONES_SHEET = "donaciones";
+const MOVIMIENTOS_FACTURA_SHEET = "movimientos_factura";
+const EVIDENCIAS_SHEET = "evidencias";
 
 const LUGARES_HEADERS = [
   "Tipo", "Nombre", "Ubicacion", "Telefono", "Insumo", "Categoria", "Estado", "Actualizado"
@@ -39,6 +44,30 @@ const HISTORIAL_HEADERS = [
   "Timestamp", "TipoLugar", "Lugar", "Insumo", "TipoMovimiento", "Cantidad",
   "Unidad", "Voluntario", "CantidadAcumulada", "Observaciones"
 ];
+const MOTORIZADOS_HEADERS = [
+  "id", "nombre", "tipoVehiculo", "telefono", "operaEn", "placa", "estado",
+  "fechaRegistro", "totalTrayectos", "totalKm", "aporteDonado", "verificado", "ultimoTrayecto"
+];
+const TRAYECTOS_HEADERS = [
+  "Timestamp", "IdMotorizado", "NombreMotorizado", "Origen", "Destino", "Km",
+  "Minutos", "Insumo", "Cantidad", "Unidad", "Foto", "Notas", "Verificado"
+];
+const DONACIONES_MOTORIZADOS_HEADERS = [
+  "Timestamp", "IdMotorizado", "NombreMotorizado", "Monto", "Tipo", "Donante", "Mensaje", "Ciudad"
+];
+const FACTURAS_HEADERS = [
+  "id", "numero_factura", "token_publico", "objetivo", "descripcion",
+  "monto_requerido", "monto_recaudado", "estado", "fecha_creacion", "fecha_cierre"
+];
+const DONACIONES_HEADERS = [
+  "id", "factura_id", "nombre_donante", "monto", "referencia_pago", "fecha", "estado"
+];
+const MOVIMIENTOS_FACTURA_HEADERS = [
+  "id", "factura_id", "tipo", "descripcion", "monto", "fecha"
+];
+const EVIDENCIAS_HEADERS = [
+  "id", "factura_id", "archivo", "descripcion", "fecha"
+];
 
 // -- PUNTOS DE ENTRADA ------------------------------------------------------
 function doGet(e) {
@@ -48,6 +77,21 @@ function doGet(e) {
     const params = (e && e.parameter) || {};
     const accion = normalizar(params.accion || "");
 
+    if (accion === "registrar_lugar" || accion === "agregar_lugar") return registrarLugar(params);
+    if (accion === "registrar_voluntario") return registrarVoluntario(params);
+    if (accion === "registrar_rescatista") return registrarRescatista(params);
+    if (accion === "registrar_trayecto") return registrarTrayecto(params);
+    if (accion === "donar_motorizado") return donarMotorizado(params);
+    if (accion === "registrar_motorizado") return registrarMotorizado(params);
+    if (accion === "crear_factura" || accion === "registrar_factura") return registrarFactura(params);
+    if (accion === "registrar_donacion" || accion === "registrar_donacion_factura") return registrarDonacionFactura(params);
+    if (accion === "registrar_movimiento_factura") return registrarMovimientoFactura(params);
+    if (accion === "registrar_evidencia" || accion === "registrar_evidencia_factura") return registrarEvidenciaFactura(params);
+    if (accion === "sincronizar_lugares" || accion === "verificar_integridad") return sincronizarRegistrosLugares(params);
+    if (accion === "buscar_familiar" || accion === "familiares") return buscarFamiliares(params);
+
+    if (accion === "seguimiento_factura" || accion === "seguimiento_token" || accion === "trazabilidad") return obtenerSeguimientoFactura(params);
+    if (accion === "facturas") return listarFacturas(params);
     if (accion === "lugares") return listarLugares(params);
     if (accion === "centros") return listarCentros();
     if (accion === "estadisticas" || accion === "stats") return listarEstadisticas();
@@ -95,10 +139,18 @@ function doPost(e) {
     if (accion === "rescatistas" || accion === "registrar_rescatista") {
       return registrarRescatista(payload);
     }
+    if (accion === "sincronizar_lugares" || accion === "verificar_integridad") {
+      return sincronizarRegistrosLugares(payload);
+    }
     if (accion === "registrar_movimiento") return registrarMovimiento(payload);
     if (accion === "registrar_trayecto") return registrarTrayecto(payload);
     if (accion === "donar_motorizado") return donarMotorizado(payload);
     if (accion === "registrar_motorizado") return registrarMotorizado(payload);
+    if (accion === "crear_factura" || accion === "registrar_factura") return registrarFactura(payload);
+    if (accion === "registrar_donacion" || accion === "registrar_donacion_factura") return registrarDonacionFactura(payload);
+    if (accion === "registrar_movimiento_factura") return registrarMovimientoFactura(payload);
+    if (accion === "registrar_evidencia" || accion === "registrar_evidencia_factura") return registrarEvidenciaFactura(payload);
+    if (accion === "seguimiento_factura" || accion === "seguimiento_token" || accion === "trazabilidad") return obtenerSeguimientoFactura(payload);
 
     if (!accion && payload.tipo && payload.nombre && payload.insumo && payload.estado) {
       return registrarLugar(payload);
@@ -119,23 +171,32 @@ function jsonResponse(obj, statusCode) {
 }
 
 // -- UTILIDADES -------------------------------------------------------------
-function abrirSpreadsheet() {
+function getSpreadsheet() {
   return SpreadsheetApp.openById(SHEET_ID);
 }
 
+function abrirSpreadsheet() {
+  return getSpreadsheet();
+}
+
+function getSheet() {
+  const ss = getSpreadsheet();
+  return ss.getSheetByName('lugares');
+}
+
 function obtenerHoja(nombre) {
-  const hoja = abrirSpreadsheet().getSheetByName(nombre);
+  const hoja = nombre === LUGARES_SHEET ? getSheet() : abrirSpreadsheet().getSheetByName(nombre);
   if (!hoja) throw new Error('No existe la hoja "' + nombre + '" en el Sheet indicado');
   return hoja;
 }
 
 function obtenerHojaOpcional(nombre) {
-  return abrirSpreadsheet().getSheetByName(nombre);
+  return nombre === LUGARES_SHEET ? getSheet() : abrirSpreadsheet().getSheetByName(nombre);
 }
 
 function asegurarHoja(nombre, headers) {
   const ss = abrirSpreadsheet();
-  let hoja = ss.getSheetByName(nombre);
+  let hoja = nombre === LUGARES_SHEET ? getSheet() : ss.getSheetByName(nombre);
   if (!hoja) hoja = ss.insertSheet(nombre);
 
   const lastColumn = hoja.getLastColumn();
@@ -173,14 +234,21 @@ function inicializarHojasBase() {
   asegurarHoja(LUGARES_SHEET, LUGARES_HEADERS);
   asegurarHoja(VOLUNTARIOS_SHEET, VOLUNTARIOS_HEADERS);
   asegurarHoja(RESCATISTAS_SHEET, RESCATISTAS_HEADERS);
+  asegurarHoja(MOTORIZADOS_SHEET, MOTORIZADOS_HEADERS);
+  asegurarHoja(TRAYECTOS_SHEET, TRAYECTOS_HEADERS);
+  asegurarHoja(DONACIONES_MOTORIZADOS_SHEET, DONACIONES_MOTORIZADOS_HEADERS);
+  asegurarHoja(FACTURAS_SHEET, FACTURAS_HEADERS);
+  asegurarHoja(DONACIONES_SHEET, DONACIONES_HEADERS);
+  asegurarHoja(MOVIMIENTOS_FACTURA_SHEET, MOVIMIENTOS_FACTURA_HEADERS);
+  asegurarHoja(EVIDENCIAS_SHEET, EVIDENCIAS_HEADERS);
   if (!obtenerHojaOpcional(HISTORIAL_SHEET)) {
     asegurarHoja(HISTORIAL_SHEET, HISTORIAL_HEADERS);
   }
 }
 
-function numero(valor, fallback) {
+function numero(valor, valorPorDefecto) {
   const n = Number(valor);
-  return isNaN(n) ? (fallback || 0) : n;
+  return isNaN(n) ? (valorPorDefecto || 0) : n;
 }
 
 function texto(valor) {
@@ -393,6 +461,22 @@ function aplicarFiltrosLugares(lugares, params) {
   });
 }
 
+function claveUnicaLugar(nombre, insumo, estado) {
+  return normalizar([nombre, insumo, esNecesita(estado) ? "necesita" : "tiene disponible"].join("|"));
+}
+
+function clavesRegistrosLugaresExistentes() {
+  const rows = leerObjetos(LUGARES_SHEET, LUGARES_HEADERS);
+  const claves = {};
+  rows.forEach(function (row) {
+    const nombre = texto(valorPorCabecera(row, ["Nombre", "nombre"]));
+    const insumo = texto(valorPorCabecera(row, ["Insumo", "insumo"]));
+    const estado = texto(valorPorCabecera(row, ["Estado", "estado"]));
+    if (nombre && insumo && estado) claves[claveUnicaLugar(nombre, insumo, estado)] = true;
+  });
+  return claves;
+}
+
 function registrarLugar(payload) {
   const tipo = texto(payload.tipo || payload.Tipo);
   const nombre = texto(payload.nombre || payload.Nombre);
@@ -404,6 +488,12 @@ function registrarLugar(payload) {
   }
 
   const hoja = asegurarHoja(LUGARES_SHEET, LUGARES_HEADERS);
+  const estadoCanonico = esNecesita(estado) ? "Necesita" : "Tiene disponible";
+  const clave = claveUnicaLugar(nombre, insumo, estadoCanonico);
+  if (clavesRegistrosLugaresExistentes()[clave]) {
+    return jsonResponse({ success: true, exito: true, duplicado: true });
+  }
+
   hoja.appendRow([
     tipo,
     nombre,
@@ -411,11 +501,113 @@ function registrarLugar(payload) {
     texto(payload.telefono || payload.Telefono),
     insumo,
     texto(payload.categoria || payload.Categoria) || "Otros",
-    esNecesita(estado) ? "Necesita" : "Tiene disponible",
+    estadoCanonico,
     new Date()
   ]);
 
   return jsonResponse({ success: true, exito: true });
+}
+
+function parseArrayPayload(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      return [];
+    }
+  }
+  return [];
+}
+
+function extraerRegistrosLugares(payload) {
+  const entrada = parseArrayPayload(payload.registros || payload.lugares || payload.centros);
+  const registros = [];
+
+  entrada.forEach(function (lugar) {
+    if (!lugar) return;
+
+    const tipo = texto(lugar.tipo || lugar.Tipo) || "Centro";
+    const nombre = texto(lugar.nombre || lugar.Nombre);
+    const ubicacion = texto(lugar.ubicacion || lugar.Ubicacion);
+    const telefono = texto(lugar.telefono || lugar.Telefono);
+    const insumoPlano = texto(lugar.insumo || lugar.Insumo);
+    const estadoPlano = texto(lugar.estado || lugar.Estado);
+
+    if (nombre && insumoPlano && estadoPlano) {
+      registros.push({
+        tipo,
+        nombre,
+        ubicacion,
+        telefono,
+        insumo: insumoPlano,
+        categoria: texto(lugar.categoria || lugar.Categoria) || "Otros",
+        estado: estadoPlano
+      });
+      return;
+    }
+
+    function agregarItems(items, estadoInsumo) {
+      (items || []).forEach(function (item) {
+        const insumo = texto(item && (item.nombre || item.insumo || item.Insumo));
+        if (!nombre || !insumo) return;
+        registros.push({
+          tipo,
+          nombre,
+          ubicacion,
+          telefono,
+          insumo,
+          categoria: texto(item.categoria || item.Categoria) || "Otros",
+          estado: estadoInsumo
+        });
+      });
+    }
+
+    agregarItems(lugar.necesita, "Necesita");
+    agregarItems(lugar.tiene_disponible, "Tiene disponible");
+    agregarItems(lugar.cubiertos, "Tiene disponible");
+  });
+
+  return registros;
+}
+
+function sincronizarRegistrosLugares(payload) {
+  const registros = extraerRegistrosLugares(payload || {});
+  const hoja = asegurarHoja(LUGARES_SHEET, LUGARES_HEADERS);
+  const existentes = clavesRegistrosLugaresExistentes();
+  const insertados = [];
+
+  registros.forEach(function (registro) {
+    const tipo = texto(registro.tipo) || "Centro";
+    const nombre = texto(registro.nombre);
+    const insumo = texto(registro.insumo);
+    const estadoCanonico = esNecesita(registro.estado) ? "Necesita" : "Tiene disponible";
+    const clave = claveUnicaLugar(nombre, insumo, estadoCanonico);
+    if (!nombre || !insumo || existentes[clave]) return;
+
+    hoja.appendRow([
+      tipo,
+      nombre,
+      texto(registro.ubicacion),
+      texto(registro.telefono),
+      insumo,
+      texto(registro.categoria) || "Otros",
+      estadoCanonico,
+      new Date()
+    ]);
+    existentes[clave] = true;
+    insertados.push({ nombre, insumo, estado: estadoCanonico });
+  });
+
+  return jsonResponse({
+    success: true,
+    exito: true,
+    revisados: registros.length,
+    insertados: insertados.length,
+    faltantesInsertados: insertados
+  });
 }
 
 // -- ESTADISTICAS ----------------------------------------------------------
@@ -477,6 +669,67 @@ function contarPersonasLocalizadas() {
     }
   }
   return total;
+}
+
+function indiceCabecera(headers, nombres) {
+  const normalizedHeaders = headers.map(normalizar);
+  for (let i = 0; i < nombres.length; i++) {
+    const idx = normalizedHeaders.indexOf(normalizar(nombres[i]));
+    if (idx !== -1) return idx;
+  }
+  return -1;
+}
+
+function valorFila(row, headers, nombres, indicePorDefecto) {
+  const idx = indiceCabecera(headers, nombres);
+  if (idx !== -1) return row[idx];
+  return indicePorDefecto != null ? row[indicePorDefecto] : "";
+}
+
+function construirFamiliares() {
+  const hoja = obtenerHojaOpcional("personas") || obtenerHojaOpcional("familiares");
+  if (!hoja) return [];
+
+  const values = hoja.getDataRange().getValues();
+  if (values.length <= 1) return [];
+
+  const headers = values[0].map(texto);
+  const familiares = [];
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (!row.some(function (value) { return texto(value); })) continue;
+
+    const persona = {
+      nombre: texto(valorFila(row, headers, ["nombre", "nombre completo", "persona"], 0)),
+      cedula: texto(valorFila(row, headers, ["cedula", "cédula", "documento", "id"], 1)),
+      estado: texto(valorFila(row, headers, ["estado", "estatus", "situacion", "situación"], 2)),
+      ubicacion: texto(valorFila(row, headers, ["ubicacion", "ubicación", "lugar", "ultima ubicacion", "última ubicación"], 3)),
+      fuente: texto(valorFila(row, headers, ["fuente", "origen"], 4)),
+      actualizado: fechaISO(valorFila(row, headers, ["actualizado", "fecha", "timestamp"], 5))
+    };
+    if (persona.nombre || persona.cedula) familiares.push(persona);
+  }
+
+  familiares.sort(function (a, b) { return new Date(b.actualizado) - new Date(a.actualizado); });
+  return familiares;
+}
+
+function buscarFamiliares(params) {
+  const query = texto(params.q || params.query || params.busqueda);
+  const qn = normalizar(query);
+  const qd = String(query || "").replace(/[^0-9]/g, "");
+  const resultados = construirFamiliares().filter(function (persona) {
+    if (!query) return false;
+    return normalizar(persona.nombre).indexOf(qn) !== -1 ||
+      (qd && String(persona.cedula || "").replace(/[^0-9]/g, "").indexOf(qd) !== -1);
+  }).slice(0, 50);
+
+  return jsonResponse({
+    resultados,
+    familiares: resultados,
+    encontrado: resultados.length > 0,
+    total: resultados.length
+  });
 }
 
 // -- VOLUNTARIOS -----------------------------------------------------------
@@ -660,12 +913,12 @@ function listarCentros() {
   return jsonResponse({ centros, lugares: centros });
 }
 
-function construirCentrosSeguro(fallback) {
+function construirCentrosSeguro(lugaresBase) {
   try {
-    if (!obtenerHojaOpcional(CENTROS_SHEET)) return fallback || [];
+    if (!obtenerHojaOpcional(CENTROS_SHEET)) return lugaresBase || [];
     return construirCentros();
   } catch (err) {
-    return fallback || [];
+    return lugaresBase || [];
   }
 }
 
@@ -1079,6 +1332,327 @@ function registrarTrayecto(payload) {
   });
 }
 
+// -- TRAZABILIDAD PUBLICA DE FACTURAS -------------------------------------
+function normalizarTokenPublico(valor) {
+  const raw = texto(valor).toUpperCase().replace(/\s+/g, "");
+  if (!raw) return "";
+  const compacto = raw.replace(/[^A-Z0-9]/g, "");
+  if (/^DV[A-Z0-9]{12}$/.test(compacto)) {
+    return "DV-" + compacto.slice(2, 6) + "-" + compacto.slice(6, 10) + "-" + compacto.slice(10, 14);
+  }
+  return raw;
+}
+
+function tokenFacturaValido(token) {
+  return /^DV-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(normalizarTokenPublico(token));
+}
+
+function tokensFacturasExistentes() {
+  const usados = {};
+  leerObjetos(FACTURAS_SHEET, FACTURAS_HEADERS).forEach(function (factura) {
+    const token = normalizarTokenPublico(factura.token_publico);
+    if (token) usados[token] = true;
+  });
+  return usados;
+}
+
+function generarSegmentoToken() {
+  const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const uuid = Utilities.getUuid().replace(/-/g, "").toUpperCase();
+  let segmento = "";
+  for (let i = 0; i < 4; i++) {
+    const base = uuid.charCodeAt((i * 7 + Math.floor(Math.random() * uuid.length)) % uuid.length);
+    const idx = (base + Math.floor(Math.random() * alfabeto.length)) % alfabeto.length;
+    segmento += alfabeto.charAt(idx);
+  }
+  return segmento;
+}
+
+function generarTokenPublico() {
+  const usados = tokensFacturasExistentes();
+  for (let intento = 0; intento < 80; intento++) {
+    const token = "DV-" + generarSegmentoToken() + "-" + generarSegmentoToken() + "-" + generarSegmentoToken();
+    if (!usados[token] && tokenFacturaValido(token)) return token;
+  }
+  throw new Error("No se pudo generar un token publico unico");
+}
+
+function generarNumeroFactura() {
+  const year = String(new Date().getFullYear());
+  const patron = new RegExp("^FAC-" + year + "-(\\d+)$");
+  let max = 0;
+  leerObjetos(FACTURAS_SHEET, FACTURAS_HEADERS).forEach(function (factura) {
+    const match = texto(factura.numero_factura).match(patron);
+    if (match) max = Math.max(max, numero(match[1], 0));
+  });
+  return "FAC-" + year + "-" + String(max + 1).padStart(6, "0");
+}
+
+function objetoDesdeFila(row, headers) {
+  const item = {};
+  headers.forEach(function (header, idx) {
+    if (header) item[header] = row[idx];
+  });
+  return item;
+}
+
+function buscarFacturaConFila(params) {
+  const hoja = asegurarHoja(FACTURAS_SHEET, FACTURAS_HEADERS);
+  const values = hoja.getDataRange().getValues();
+  const headers = (values[0] || FACTURAS_HEADERS).map(texto);
+  const tokenBusqueda = normalizarTokenPublico(params.token || params.token_publico);
+  const idBusqueda = texto(params.factura_id || params.id);
+  const numeroBusqueda = texto(params.numero_factura || params.numeroFactura);
+  const idxToken = headers.indexOf("token_publico");
+  const idxId = headers.indexOf("id");
+  const idxNumero = headers.indexOf("numero_factura");
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (!row.some(function (value) { return texto(value); })) continue;
+    const coincideToken = tokenBusqueda && idxToken !== -1 && normalizarTokenPublico(row[idxToken]) === tokenBusqueda;
+    const coincideId = idBusqueda && idxId !== -1 && texto(row[idxId]) === idBusqueda;
+    const coincideNumero = numeroBusqueda && idxNumero !== -1 && texto(row[idxNumero]) === numeroBusqueda;
+    if (coincideToken || coincideId || coincideNumero) {
+      return { hoja, fila: i + 1, headers, factura: objetoDesdeFila(row, headers) };
+    }
+  }
+  return null;
+}
+
+function existeValorFactura(campo, valor) {
+  const buscado = campo === "token_publico" ? normalizarTokenPublico(valor) : texto(valor);
+  if (!buscado) return false;
+  return leerObjetos(FACTURAS_SHEET, FACTURAS_HEADERS).some(function (factura) {
+    const actual = campo === "token_publico" ? normalizarTokenPublico(factura[campo]) : texto(factura[campo]);
+    return actual === buscado;
+  });
+}
+
+function fechaRegistro(valor) {
+  if (!valor) return new Date();
+  const fecha = new Date(valor);
+  return isNaN(fecha.getTime()) ? texto(valor) : fecha;
+}
+
+function setFacturaCampo(info, campo, valor) {
+  const idx = info.headers.indexOf(campo);
+  if (idx !== -1) info.hoja.getRange(info.fila, idx + 1).setValue(valor);
+}
+
+function actualizarMontoFactura(info, delta, estadoForzado) {
+  const actual = numero(info.factura.monto_recaudado, 0);
+  const requerido = numero(info.factura.monto_requerido, 0);
+  const nuevoMonto = Math.max(0, actual + numero(delta, 0));
+  setFacturaCampo(info, "monto_recaudado", nuevoMonto);
+
+  let estado = texto(estadoForzado);
+  if (!estado && requerido > 0 && nuevoMonto >= requerido) estado = "completada";
+  if (estado) setFacturaCampo(info, "estado", estado);
+  if (estado && normalizar(estado) === "completada" && !texto(info.factura.fecha_cierre)) {
+    const cierre = new Date();
+    setFacturaCampo(info, "fecha_cierre", cierre);
+    info.factura.fecha_cierre = cierre;
+  }
+
+  info.factura.monto_recaudado = nuevoMonto;
+  if (estado) info.factura.estado = estado;
+  return nuevoMonto;
+}
+
+function facturaPublica(factura) {
+  const requerido = numero(factura.monto_requerido, 0);
+  const recaudado = numero(factura.monto_recaudado, 0);
+  const porcentaje = requerido > 0 ? Math.min(100, Math.round((recaudado / requerido) * 100)) : 0;
+  return {
+    id: texto(factura.id),
+    numero_factura: texto(factura.numero_factura),
+    token_publico: normalizarTokenPublico(factura.token_publico),
+    objetivo: textoPublico(factura.objetivo),
+    descripcion: textoPublico(factura.descripcion),
+    monto_requerido: requerido,
+    monto_recaudado: recaudado,
+    porcentaje_completado: porcentaje,
+    porcentaje,
+    estado: textoPublico(factura.estado || "abierta"),
+    fecha_creacion: fechaISO(factura.fecha_creacion),
+    fecha_cierre: fechaISO(factura.fecha_cierre)
+  };
+}
+
+function textoPublico(valor) {
+  let out = texto(valor);
+  if (!out) return "";
+  out = out.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/ig, "[correo protegido]");
+  out = out.replace(/\+?\d[\d\s().-]{6,}\d/g, "[telefono protegido]");
+  out = out.replace(/\b(cuenta|iban|swift|banco|bancaria|pago movil|pago móvil|deposito|depósito|transferencia|rif|cedula|cédula|telefono|teléfono|direccion|dirección|coordenada|latitud|longitud)\b/ig, "[dato protegido]");
+  return out.slice(0, 1000);
+}
+
+function registrarFactura(payload) {
+  const objetivo = texto(payload.objetivo);
+  const montoRequerido = numero(payload.monto_requerido || payload.montoRequerido, 0);
+  if (!objetivo) throw new Error("Falta objetivo");
+  if (montoRequerido <= 0) throw new Error("El monto requerido debe ser mayor a 0");
+
+  const hoja = asegurarHoja(FACTURAS_SHEET, FACTURAS_HEADERS);
+  const tokenSolicitado = normalizarTokenPublico(payload.token_publico || payload.token);
+  if (tokenSolicitado && !tokenFacturaValido(tokenSolicitado)) throw new Error("Token publico invalido");
+  if (tokenSolicitado && existeValorFactura("token_publico", tokenSolicitado)) throw new Error("El token publico ya existe");
+
+  const numeroFactura = texto(payload.numero_factura || payload.numeroFactura) || generarNumeroFactura();
+  if (existeValorFactura("numero_factura", numeroFactura)) throw new Error("La factura ya existe");
+
+  const id = texto(payload.id || payload.factura_id) || generarId(hoja, "FAC");
+  if (existeValorFactura("id", id)) throw new Error("El id de factura ya existe");
+
+  const factura = {
+    id,
+    numero_factura: numeroFactura,
+    token_publico: tokenSolicitado || generarTokenPublico(),
+    objetivo,
+    descripcion: texto(payload.descripcion),
+    monto_requerido: montoRequerido,
+    monto_recaudado: numero(payload.monto_recaudado || payload.montoRecaudado, 0),
+    estado: texto(payload.estado) || "abierta",
+    fecha_creacion: fechaRegistro(payload.fecha_creacion || payload.fechaCreacion),
+    fecha_cierre: payload.fecha_cierre || payload.fechaCierre ? fechaRegistro(payload.fecha_cierre || payload.fechaCierre) : ""
+  };
+
+  anexarObjeto(FACTURAS_SHEET, FACTURAS_HEADERS, factura);
+  return jsonResponse({ success: true, exito: true, factura: facturaPublica(factura), token: factura.token_publico });
+}
+
+function registrarDonacionFactura(payload) {
+  const info = buscarFacturaConFila(payload);
+  if (!info) return jsonResponse({ error: "Factura no encontrada" }, 404);
+
+  const monto = numero(payload.monto, 0);
+  if (monto <= 0) throw new Error("El monto debe ser mayor a 0");
+
+  const donSheet = asegurarHoja(DONACIONES_SHEET, DONACIONES_HEADERS);
+  const movSheet = asegurarHoja(MOVIMIENTOS_FACTURA_SHEET, MOVIMIENTOS_FACTURA_HEADERS);
+  const fecha = fechaRegistro(payload.fecha);
+  const estado = texto(payload.estado) || "confirmada";
+  const donacion = {
+    id: texto(payload.id) || generarId(donSheet, "DON"),
+    factura_id: texto(info.factura.id),
+    nombre_donante: texto(payload.nombre_donante || payload.nombreDonante || payload.donante) || "Anonimo",
+    monto,
+    referencia_pago: texto(payload.referencia_pago || payload.referenciaPago || payload.referencia),
+    fecha,
+    estado
+  };
+  anexarObjeto(DONACIONES_SHEET, DONACIONES_HEADERS, donacion);
+
+  if (normalizar(estado) === "confirmada" || normalizar(estado) === "aprobada") {
+    actualizarMontoFactura(info, monto, payload.estado_factura || payload.estadoFactura);
+    anexarObjeto(MOVIMIENTOS_FACTURA_SHEET, MOVIMIENTOS_FACTURA_HEADERS, {
+      id: generarId(movSheet, "MOV"),
+      factura_id: texto(info.factura.id),
+      tipo: "donacion",
+      descripcion: texto(payload.descripcion) || "Donacion confirmada",
+      monto,
+      fecha
+    });
+  }
+
+  return jsonResponse({ success: true, exito: true, donacion_id: donacion.id, factura: facturaPublica(info.factura) });
+}
+
+function registrarMovimientoFactura(payload) {
+  const info = buscarFacturaConFila(payload);
+  if (!info) return jsonResponse({ error: "Factura no encontrada" }, 404);
+
+  const monto = numero(payload.monto, 0);
+  const tipo = texto(payload.tipo);
+  if (!tipo) throw new Error("Falta tipo de movimiento");
+
+  const movSheet = asegurarHoja(MOVIMIENTOS_FACTURA_SHEET, MOVIMIENTOS_FACTURA_HEADERS);
+  const movimiento = {
+    id: texto(payload.id) || generarId(movSheet, "MOV"),
+    factura_id: texto(info.factura.id),
+    tipo,
+    descripcion: texto(payload.descripcion),
+    monto,
+    fecha: fechaRegistro(payload.fecha)
+  };
+  anexarObjeto(MOVIMIENTOS_FACTURA_SHEET, MOVIMIENTOS_FACTURA_HEADERS, movimiento);
+
+  if (payload.afecta_recaudado === true || normalizar(payload.afecta_recaudado || payload.afectaRecaudado) === "si") {
+    actualizarMontoFactura(info, monto, payload.estado_factura || payload.estadoFactura);
+  }
+
+  return jsonResponse({ success: true, exito: true, movimiento_id: movimiento.id, factura: facturaPublica(info.factura) });
+}
+
+function registrarEvidenciaFactura(payload) {
+  const info = buscarFacturaConFila(payload);
+  if (!info) return jsonResponse({ error: "Factura no encontrada" }, 404);
+
+  const archivo = texto(payload.archivo || payload.url || payload.link);
+  if (!archivo) throw new Error("Falta archivo de evidencia");
+
+  const evSheet = asegurarHoja(EVIDENCIAS_SHEET, EVIDENCIAS_HEADERS);
+  const evidencia = {
+    id: texto(payload.id) || generarId(evSheet, "EVI"),
+    factura_id: texto(info.factura.id),
+    archivo,
+    descripcion: texto(payload.descripcion),
+    fecha: fechaRegistro(payload.fecha)
+  };
+  anexarObjeto(EVIDENCIAS_SHEET, EVIDENCIAS_HEADERS, evidencia);
+  return jsonResponse({ success: true, exito: true, evidencia_id: evidencia.id });
+}
+
+function listarFacturas() {
+  const facturas = leerObjetos(FACTURAS_SHEET, FACTURAS_HEADERS).map(facturaPublica);
+  return jsonResponse({ success: true, facturas, total: facturas.length });
+}
+
+function obtenerSeguimientoFactura(params) {
+  const token = normalizarTokenPublico(params.token || params.token_publico || params.t);
+  if (!token || !tokenFacturaValido(token)) return jsonResponse({ success: false, error: "Token invalido" }, 400);
+
+  const info = buscarFacturaConFila({ token });
+  if (!info) return jsonResponse({ success: false, error: "Factura no encontrada" }, 404);
+
+  const facturaId = texto(info.factura.id);
+  const historial = leerObjetos(MOVIMIENTOS_FACTURA_SHEET, MOVIMIENTOS_FACTURA_HEADERS)
+    .filter(function (mov) { return texto(mov.factura_id) === facturaId; })
+    .map(function (mov) {
+      return {
+        id: texto(mov.id),
+        tipo: textoPublico(mov.tipo),
+        descripcion: textoPublico(mov.descripcion),
+        monto: numero(mov.monto, 0),
+        fecha: fechaISO(mov.fecha)
+      };
+    })
+    .sort(function (a, b) { return new Date(a.fecha) - new Date(b.fecha); });
+
+  const evidencias = leerObjetos(EVIDENCIAS_SHEET, EVIDENCIAS_HEADERS)
+    .filter(function (ev) { return texto(ev.factura_id) === facturaId; })
+    .map(function (ev) {
+      return {
+        id: texto(ev.id),
+        archivo: textoPublico(ev.archivo),
+        descripcion: textoPublico(ev.descripcion),
+        fecha: fechaISO(ev.fecha)
+      };
+    })
+    .sort(function (a, b) { return new Date(b.fecha) - new Date(a.fecha); });
+
+  return jsonResponse({
+    success: true,
+    factura: facturaPublica(info.factura),
+    historial,
+    movimientos: historial,
+    evidencias,
+    estado: textoPublico(info.factura.estado || "abierta")
+  });
+}
+
 // -- DONACIONES A MOTORIZADOS ---------------------------------------------
 function donarMotorizado(payload) {
   const idMotorizado = texto(payload.idMotorizado || payload.motorizadoId);
@@ -1088,7 +1662,7 @@ function donarMotorizado(payload) {
   if (monto <= 0) throw new Error("El monto debe ser mayor a 0");
 
   const ss = abrirSpreadsheet();
-  const donSheet = ss.getSheetByName(DONACIONES_SHEET);
+  const donSheet = ss.getSheetByName(DONACIONES_MOTORIZADOS_SHEET);
   const motorSheet = ss.getSheetByName(MOTORIZADOS_SHEET);
   if (!donSheet || !motorSheet) throw new Error("Faltan hojas de donaciones o motorizados");
 
@@ -1127,7 +1701,7 @@ function donarMotorizado(payload) {
 }
 
 function construirDonacionesMotorizado(id) {
-  const sheet = obtenerHoja(DONACIONES_SHEET);
+  const sheet = obtenerHoja(DONACIONES_MOTORIZADOS_SHEET);
   const data = sheet.getDataRange().getValues();
   const donaciones = [];
 
