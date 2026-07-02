@@ -102,6 +102,7 @@ function doGet(e) {
     if (accion === "perfil_motorizado") return obtenerPerfilMotorizado(params.id);
     if (accion === "trayectos") return obtenerTrayectos(params.motorizado || params.motorizadoId || null);
     if (accion === "historial") return obtenerHistorialMovimientos(params.centro || params.lugar || null);
+    if (accion === "registrar_centro_panel") return registrarCentroPanel(params);
 
     const lugares = construirLugares();
     const centros = construirCentrosSeguro(lugares);
@@ -155,6 +156,7 @@ function doPost(e) {
     if (accion === "registrar_movimiento_factura") return registrarMovimientoFactura(payload);
     if (accion === "registrar_evidencia" || accion === "registrar_evidencia_factura") return registrarEvidenciaFactura(payload);
     if (accion === "seguimiento_factura" || accion === "seguimiento_token" || accion === "trazabilidad") return obtenerSeguimientoFactura(payload);
+    if (accion === "registrar_centro_panel") return registrarCentroPanel(payload);
 
     if (!accion && payload.tipo && payload.nombre && payload.insumo && payload.estado) {
       return registrarLugar(payload);
